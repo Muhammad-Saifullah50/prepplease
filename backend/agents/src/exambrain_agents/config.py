@@ -39,7 +39,23 @@ def model_for(agent_name: str, settings: Settings | None = None) -> LitellmModel
         raise NotConfiguredError(
             "LLM", f"set LLM_MODEL (or AGENT_{agent_name.upper()}_MODEL)"
         )
-    return LitellmModel(model=model, **_credential_kwargs(s))
+    creds = _credential_kwargs(s)
+    return LitellmModel(model=model, api_key=creds.get("api_key"))
+
+
+def model_for_or_none(
+    agent_name: str, settings: Settings | None = None
+) -> LitellmModel | None:
+    """Like :func:`model_for`, but None when no model is configured.
+
+    Agent construction stays import-safe with zero configuration (tests
+    inject FakeModel at run time); a live run without LLM_MODEL still fails
+    loudly inside the SDK when the agent actually executes.
+    """
+    try:
+        return model_for(agent_name, settings)
+    except NotConfiguredError:
+        return None
 
 
 def max_turns(settings: Settings | None = None) -> int:

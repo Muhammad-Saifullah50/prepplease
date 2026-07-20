@@ -1,10 +1,11 @@
 """ORM models owned by the ingestion-pipeline service (``ingestion`` database)."""
 
 import uuid
+from decimal import Decimal
 from typing import Any
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import CheckConstraint, ForeignKey, Index, text
+from sqlalchemy import CheckConstraint, ForeignKey, Index, Numeric, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -26,6 +27,7 @@ class PastPaper(TimestampMixin, Base):
         ),
         Index("ix_past_papers_course_id", "course_id"),
         Index("ix_past_papers_processing_status", "processing_status"),
+        Index("ix_past_papers_needs_review", "needs_review"),
         {"info": {"service": SERVICE}},
     )
 
@@ -39,6 +41,12 @@ class PastPaper(TimestampMixin, Base):
         nullable=False, server_default=text("'pending'")
     )
     failure_reason: Mapped[str | None] = mapped_column(nullable=True)
+    parsing_confidence: Mapped[Decimal | None] = mapped_column(
+        Numeric(4, 3), nullable=True  # set on completed parse (FR-002)
+    )
+    needs_review: Mapped[bool] = mapped_column(
+        nullable=False, server_default=text("false")
+    )
 
 
 class DocumentChunk(TimestampMixin, Base):

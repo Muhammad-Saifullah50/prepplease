@@ -56,6 +56,8 @@ module = [
     "botocore.*",
     "litellm.*",
     "pgvector.*",
+    "pypdfium2.*",
+    "pytesseract.*",
 ]
 ignore_missing_imports = true
 

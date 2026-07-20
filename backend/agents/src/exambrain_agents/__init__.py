@@ -11,4 +11,9 @@ from agents import set_tracing_disabled
 
 set_tracing_disabled(True)  # FR-022: no external trace export, ever
 
-__all__: list[str] = []  # filled per story as pipelines land
+from exambrain_agents.pipelines.ingest import (  # noqa: E402
+    IngestResult,
+    ingest_course_file,
+)
+
+__all__ = ["IngestResult", "ingest_course_file"]
