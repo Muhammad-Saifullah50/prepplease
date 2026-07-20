@@ -47,3 +47,32 @@ class ExamSession(TimestampMixin, Base):
     focus_violations: Mapped[int] = mapped_column(
         nullable=False, server_default=text("0")
     )
+
+
+class GeneratedExamRow(TimestampMixin, Base):
+    """A stored original mock exam with its rubric (Phase 2 agents)."""
+
+    __tablename__ = "generated_exams"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('ready', 'needs_review')",
+            name="ck_generated_exams_status",
+        ),
+        Index("ix_generated_exams_course_id", "course_id"),
+        Index("ix_generated_exams_status", "status"),
+        {"info": {"service": SERVICE}},
+    )
+
+    course_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), nullable=False  # identifier-only ref (course_core DB)
+    )
+    blueprint_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), nullable=False  # identifier-only ref
+    )
+    blueprint_version: Mapped[int] = mapped_column(nullable=False)
+    content: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    rubric: Mapped[list[Any]] = mapped_column(JSONB, nullable=False)
+    status: Mapped[str] = mapped_column(nullable=False, server_default=text("'ready'"))
+    needs_review_reasons: Mapped[list[Any]] = mapped_column(
+        JSONB, nullable=False, server_default=text("'[]'::jsonb")
+    )

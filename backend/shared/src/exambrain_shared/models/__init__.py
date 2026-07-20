@@ -23,6 +23,7 @@ __all__ = [
     "DocumentChunk",
     "ExamBlueprint",
     "ExamSession",
+    "GeneratedExamRow",
     "PastPaper",
     "Result",
     "User",
@@ -54,5 +55,8 @@ from exambrain_shared.models.course_core import (  # noqa: E402
     Result,
     User,
 )
-from exambrain_shared.models.exam_sim import ExamSession  # noqa: E402
+from exambrain_shared.models.exam_sim import (  # noqa: E402
+    ExamSession,
+    GeneratedExamRow,
+)
 from exambrain_shared.models.ingestion import DocumentChunk, PastPaper  # noqa: E402

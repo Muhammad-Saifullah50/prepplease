@@ -69,7 +69,7 @@ markers = [
     "live_llm: opt-in live-provider agent smoke tests (needs credentials; skipped by default)",
 ]
 testpaths = [
-    "tests",
+    "shared/tests",
     "services/course-core/tests",
     "services/ingestion-pipeline/tests",
     "services/exam-simulation/tests",

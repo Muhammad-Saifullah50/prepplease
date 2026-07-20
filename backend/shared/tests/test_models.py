@@ -25,6 +25,7 @@ EXPECTED_SERVICES = {
     "past_papers": "ingestion",
     "document_chunks": "ingestion",
     "exam_sessions": "exam_sim",
+    "generated_exams": "exam_sim",
 }
 
 

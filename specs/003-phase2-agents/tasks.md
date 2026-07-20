@@ -90,18 +90,18 @@ Backend uv workspace at `backend/`; new workspace member `backend/agents/` (pack
 
 ### Tests (write first, verify they fail)
 
-- [ ] T029 [P] [US3] Migration test (`@pytest.mark.migration`) for `generated_exams` table in `backend/services/exam-simulation/tests/test_migrations.py`
-- [ ] T030 [P] [US3] Write `backend/agents/tests/test_tools_retrieval.py`: `search_course_content` embeds query and runs course-scoped pgvector cosine search via fake session; read-only; result shape `{chunk_id, content, hierarchy, similarity}`
-- [ ] T031 [P] [US3] Write `backend/agents/tests/test_pipeline_generate.py` (TDD critical path): structure/marks/rubric/citation validation vs blueprint, corrective retry on first failure, second failure → persisted `needs_review` + reasons, `ungrounded_topics` → needs_review, no blueprint → `BlueprintRequiredError`, no content → `ContentRequiredError`, turn limit → `AgentTurnLimitError` with no write (spec US3 AS1–AS5, FR-014, SC-004/005)
+- [X] T029 [P] [US3] Migration test (`@pytest.mark.migration`) for `generated_exams` table in `backend/services/exam-simulation/tests/test_migrations.py`
+- [X] T030 [P] [US3] Write `backend/agents/tests/test_tools_retrieval.py`: `search_course_content` embeds query and runs course-scoped pgvector cosine search via fake session; read-only; result shape `{chunk_id, content, hierarchy, similarity}`
+- [X] T031 [P] [US3] Write `backend/agents/tests/test_pipeline_generate.py` (TDD critical path): structure/marks/rubric/citation validation vs blueprint, corrective retry on first failure, second failure → persisted `needs_review` + reasons, `ungrounded_topics` → needs_review, no blueprint → `BlueprintRequiredError`, no content → `ContentRequiredError`, turn limit → `AgentTurnLimitError` with no write (spec US3 AS1–AS5, FR-014, SC-004/005)
 
 ### Implementation
 
-- [ ] T032 [P] [US3] Create exam-sim migration `backend/services/exam-simulation/alembic/versions/20260720_002_generated_exams.py`: `generated_exams` table per data-model.md (content/rubric JSONB, status CHECK ready|needs_review, needs_review_reasons, indexes); make T029 pass
-- [ ] T033 [P] [US3] Implement `backend/agents/src/exambrain_agents/schemas/generation.py`: `ExamQuestion`, `ExamSection`, `RubricEntry`, `GeneratedExam` per contracts/agent-outputs.md
-- [ ] T034 [US3] Implement `backend/agents/src/exambrain_agents/tools/retrieval.py`: `search_course_content` (embed via `LLMClient.embed()`, pgvector cosine over `document_chunks`, read-only repository query); make T030 pass
-- [ ] T035 [US3] Implement generator agent in `backend/agents/src/exambrain_agents/generator/prompt.py` + `generator/agent.py`: `output_type=GeneratedExam`, `search_course_content` tool, prompt enforces blueprint fidelity + per-topic retrieval + citation of returned chunk ids (FR-011/FR-012/FR-013)
-- [ ] T036 [P] [US3] Implement `backend/agents/src/exambrain_agents/repositories/exam_sim.py`: `generated_exams` insert/read with status + blueprint reference (FR-015)
-- [ ] T037 [US3] Implement `backend/agents/src/exambrain_agents/pipelines/generate.py`: `generate_exam()` per contracts/pipelines.md — latest-blueprint load, content-presence guard, generator run, full validation (layout/types/counts/marks/total, chunk-id existence, rubric coverage), one corrective retry, persist `ready`|`needs_review`, `GeneratedExamRecord`; export from `__init__.py`; make T031 pass
+- [X] T032 [P] [US3] Create exam-sim migration `backend/services/exam-simulation/alembic/versions/20260720_002_generated_exams.py`: `generated_exams` table per data-model.md (content/rubric JSONB, status CHECK ready|needs_review, needs_review_reasons, indexes); make T029 pass
+- [X] T033 [P] [US3] Implement `backend/agents/src/exambrain_agents/schemas/generation.py`: `ExamQuestion`, `ExamSection`, `RubricEntry`, `GeneratedExam` per contracts/agent-outputs.md
+- [X] T034 [US3] Implement `backend/agents/src/exambrain_agents/tools/retrieval.py`: `search_course_content` (embed via `LLMClient.embed()`, pgvector cosine over `document_chunks`, read-only repository query); make T030 pass
+- [X] T035 [US3] Implement generator agent in `backend/agents/src/exambrain_agents/generator/prompt.py` + `generator/agent.py`: `output_type=GeneratedExam`, `search_course_content` tool, prompt enforces blueprint fidelity + per-topic retrieval + citation of returned chunk ids (FR-011/FR-012/FR-013)
+- [X] T036 [P] [US3] Implement `backend/agents/src/exambrain_agents/repositories/exam_sim.py`: `generated_exams` insert/read with status + blueprint reference (FR-015)
+- [X] T037 [US3] Implement `backend/agents/src/exambrain_agents/pipelines/generate.py`: `generate_exam()` per contracts/pipelines.md — latest-blueprint load, content-presence guard, generator run, full validation (layout/types/counts/marks/total, chunk-id existence, rubric coverage), one corrective retry, persist `ready`|`needs_review`, `GeneratedExamRecord`; export from `__init__.py`; make T031 pass
 
 **Checkpoint**: Both P1 stories work — ingest then generate, fully offline.
 
