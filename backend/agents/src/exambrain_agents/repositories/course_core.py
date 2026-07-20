@@ -18,6 +18,7 @@ from exambrain_shared.models.course_core import (
     ExamBlueprint,
     Instructor,
     InstructorResolution,
+    Result,
 )
 
 
@@ -164,3 +165,31 @@ class CourseCoreRepository:
             if course is None:
                 raise ObjectNotFoundError(str(course_id))
             course.instructor_id = instructor_id
+
+    # -- results (US4, FR-016) ---------------------------------------------
+
+    async def upsert_result(
+        self, exam_session_id: uuid.UUID, payload: dict[str, Any]
+    ) -> None:
+        """Exactly one result per session: update in place or insert."""
+        async with self._session_factory() as session, session.begin():
+            existing = await session.scalar(
+                select(Result).where(Result.exam_session_id == exam_session_id)
+            )
+            if existing is not None:
+                existing.question_scores = payload["question_scores"]
+                existing.aggregate_score = payload["aggregate_score"]
+                existing.max_score = payload["max_score"]
+                existing.weak_topics = payload["weak_topics"]
+                return
+            session.add(
+                Result(
+                    user_id=payload["user_id"],
+                    course_id=payload["course_id"],
+                    exam_session_id=exam_session_id,
+                    question_scores=payload["question_scores"],
+                    aggregate_score=payload["aggregate_score"],
+                    max_score=payload["max_score"],
+                    weak_topics=payload["weak_topics"],
+                )
+            )

@@ -11,6 +11,11 @@ from agents import set_tracing_disabled
 
 set_tracing_disabled(True)  # FR-022: no external trace export, ever
 
+from exambrain_agents.pipelines.evaluate import (  # noqa: E402
+    EvaluationRecord,
+    SubmittedAnswer,
+    evaluate_submission,
+)
 from exambrain_agents.pipelines.generate import (  # noqa: E402
     GeneratedExamRecord,
     generate_exam,
@@ -21,8 +26,11 @@ from exambrain_agents.pipelines.ingest import (  # noqa: E402
 )
 
 __all__ = [
+    "EvaluationRecord",
     "GeneratedExamRecord",
     "IngestResult",
+    "SubmittedAnswer",
+    "evaluate_submission",
     "generate_exam",
     "ingest_course_file",
 ]
