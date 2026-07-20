@@ -1,0 +1,117 @@
+name: exambrain
+
+services:
+  course-core:
+    build:
+      context: ../..
+      dockerfile: services/course-core/Dockerfile.dev
+    ports:
+      - "8001:8000"
+    volumes:
+      - ../../services/course-core/src:/app/services/course-core/src
+      - ../../shared/src:/app/shared/src
+    environment:
+      LOG_LEVEL: INFO
+      DATABASE_URL: postgresql+asyncpg://exambrain:exambrain@postgres:5432/course_core
+      REDIS_URL: redis://redis:6379/0
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  ingestion-pipeline:
+    build:
+      context: ../..
+      dockerfile: services/ingestion-pipeline/Dockerfile.dev
+    ports:
+      - "8002:8000"
+    volumes:
+      - ../../services/ingestion-pipeline/src:/app/services/ingestion-pipeline/src
+      - ../../shared/src:/app/shared/src
+    environment:
+      LOG_LEVEL: INFO
+      DATABASE_URL: postgresql+asyncpg://exambrain:exambrain@postgres:5432/ingestion
+      REDIS_URL: redis://redis:6379/1
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  exam-simulation:
+    build:
+      context: ../..
+      dockerfile: services/exam-simulation/Dockerfile.dev
+    ports:
+      - "8003:8000"
+    volumes:
+      - ../../services/exam-simulation/src:/app/services/exam-simulation/src
+      - ../../shared/src:/app/shared/src
+    environment:
+      LOG_LEVEL: INFO
+      DATABASE_URL: postgresql+asyncpg://exambrain:exambrain@postgres:5432/exam_sim
+      REDIS_URL: redis://redis:6379/2
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: exambrain
+      POSTGRES_PASSWORD: exambrain
+    volumes:
+      - ./postgres/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh:ro
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U exambrain -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - ./otel/otel-collector-config.yaml:/etc/otelcol-contrib/config.yaml:ro
+
+volumes:
+  pgdata:

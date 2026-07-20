@@ -1,0 +1,63 @@
+openapi: 3.1.0
+info:
+  title: ExamBrain Service Scaffold API
+  description: >
+    Common operational endpoints exposed by every ExamBrain microservice
+    (course-core :8001, ingestion-pipeline :8002, exam-simulation :8003).
+    These are the only endpoints delivered by feature 001-project-scaffold
+    and are explicitly whitelisted as unauthenticated.
+  version: 0.1.0
+servers:
+  - url: http://localhost:8001
+    description: course-core
+  - url: http://localhost:8002
+    description: ingestion-pipeline
+  - url: http://localhost:8003
+    description: exam-simulation
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Liveness/health check
+      tags: [operational]
+      responses:
+        "200":
+          description: Service is up.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              examples:
+                course-core:
+                  value:
+                    status: ok
+                    service: course-core
+                    version: 0.1.0
+  /metrics:
+    get:
+      operationId: getMetrics
+      summary: Prometheus metrics exposition
+      tags: [operational]
+      responses:
+        "200":
+          description: Metrics in Prometheus text exposition format.
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, service, version]
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          const: ok
+        service:
+          type: string
+          enum: [course-core, ingestion-pipeline, exam-simulation]
+        version:
+          type: string
+          const: 0.1.0

@@ -1,0 +1,84 @@
+[project]
+name = "exambrain-backend"
+version = "0.1.0"
+description = "ExamBrain backend monorepo workspace root"
+requires-python = ">=3.12"
+dependencies = [
+    "exambrain-shared",
+    "course-core",
+    "ingestion-pipeline",
+    "exam-simulation",
+]
+
+[tool.uv.workspace]
+members = ["services/*", "shared"]
+
+[tool.uv.sources]
+exambrain-shared = { workspace = true }
+course-core = { workspace = true }
+ingestion-pipeline = { workspace = true }
+exam-simulation = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=6.0",
+    "httpx>=0.28",
+    "mypy>=1.13",
+    "ruff>=0.8",
+    "pre-commit>=4.0",
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+src = ["shared/src", "services/*/src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+strict = true
+python_version = "3.12"
+mypy_path = "shared/src:services/course-core/src:services/ingestion-pipeline/src:services/exam-simulation/src"
+namespace_packages = true
+explicit_package_bases = true
+
+[[tool.mypy.overrides]]
+module = ["prometheus_client.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+addopts = "--import-mode=importlib"
+testpaths = [
+    "tests",
+    "services/course-core/tests",
+    "services/ingestion-pipeline/tests",
+    "services/exam-simulation/tests",
+]
+
+[tool.coverage.run]
+source = [
+    "exambrain_shared",
+    "course_core",
+    "ingestion_pipeline",
+    "exam_simulation",
+    "agents",
+]
+
+[tool.coverage.paths]
+shared = ["shared/src/exambrain_shared", "*/site-packages/exambrain_shared"]
+course_core = ["services/course-core/src/course_core", "*/site-packages/course_core"]
+ingestion_pipeline = [
+    "services/ingestion-pipeline/src/ingestion_pipeline",
+    "*/site-packages/ingestion_pipeline",
+]
+exam_simulation = [
+    "services/exam-simulation/src/exam_simulation",
+    "*/site-packages/exam_simulation",
+]
+
+[tool.coverage.report]
+show_missing = true

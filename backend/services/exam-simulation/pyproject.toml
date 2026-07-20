@@ -1,0 +1,21 @@
+[project]
+name = "exam-simulation"
+version = "0.1.0"
+description = "ExamBrain exam-simulation service"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "alembic>=1.14",
+    "exambrain-shared",
+]
+
+[tool.uv.sources]
+exambrain-shared = { workspace = true }
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/exam_simulation"]
