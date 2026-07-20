@@ -46,6 +46,19 @@ class Settings(BaseSettings):
     # S3 endpoint override (future MinIO swap)
     s3_endpoint_url: str | None = None
 
+    # Per-agent model overrides (Phase 2 agents; default to llm_model — FR-021)
+    agent_parsing_model: str | None = None
+    agent_alignment_model: str | None = None
+    agent_blueprint_model: str | None = None
+    agent_generator_model: str | None = None
+    agent_evaluation_model: str | None = None
+
+    # Agent behavior (Phase 2 agents — research R10)
+    agent_max_turns: int = 10
+    alignment_auto_match_threshold: float = 0.90
+    alignment_review_threshold: float = 0.70
+    parsing_review_confidence_threshold: float = 0.60
+
     _SECRET_FIELDS = frozenset({"aws_secret_access_key", "llm_api_key"})
 
     def __repr_args__(self) -> "Iterable[tuple[str | None, object]]":

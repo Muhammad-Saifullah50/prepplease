@@ -5,16 +5,18 @@ description = "ExamBrain backend monorepo workspace root"
 requires-python = ">=3.12"
 dependencies = [
     "exambrain-shared",
+    "exambrain-agents",
     "course-core",
     "ingestion-pipeline",
     "exam-simulation",
 ]
 
 [tool.uv.workspace]
-members = ["services/*", "shared"]
+members = ["services/*", "shared", "agents"]
 
 [tool.uv.sources]
 exambrain-shared = { workspace = true }
+exambrain-agents = { workspace = true }
 course-core = { workspace = true }
 ingestion-pipeline = { workspace = true }
 exam-simulation = { workspace = true }
@@ -35,7 +37,7 @@ dev = [
 [tool.ruff]
 line-length = 88
 target-version = "py312"
-src = ["shared/src", "services/*/src"]
+src = ["shared/src", "services/*/src", "agents/src"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
@@ -43,7 +45,7 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 [tool.mypy]
 strict = true
 python_version = "3.12"
-mypy_path = "shared/src:services/course-core/src:services/ingestion-pipeline/src:services/exam-simulation/src"
+mypy_path = "shared/src:services/course-core/src:services/ingestion-pipeline/src:services/exam-simulation/src:agents/src"
 namespace_packages = true
 explicit_package_bases = true
 
@@ -62,12 +64,14 @@ asyncio_mode = "auto"
 addopts = "--import-mode=importlib"
 markers = [
     "migration: migration round-trip tests requiring the local docker Postgres (auto-skipped when unreachable)",
+    "live_llm: opt-in live-provider agent smoke tests (needs credentials; skipped by default)",
 ]
 testpaths = [
     "tests",
     "services/course-core/tests",
     "services/ingestion-pipeline/tests",
     "services/exam-simulation/tests",
+    "agents/tests",
 ]
 
 [tool.coverage.run]
@@ -76,7 +80,7 @@ source = [
     "course_core",
     "ingestion_pipeline",
     "exam_simulation",
-    "agents",
+    "exambrain_agents",
 ]
 
 [tool.coverage.paths]
@@ -89,6 +93,10 @@ ingestion_pipeline = [
 exam_simulation = [
     "services/exam-simulation/src/exam_simulation",
     "*/site-packages/exam_simulation",
+]
+exambrain_agents = [
+    "agents/src/exambrain_agents",
+    "*/site-packages/exambrain_agents",
 ]
 
 [tool.coverage.report]
