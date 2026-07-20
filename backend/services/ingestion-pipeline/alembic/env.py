@@ -8,7 +8,10 @@ from alembic import context
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+import exambrain_shared.models  # noqa: F401  — register all ORM models
 from exambrain_shared.db import Base
+
+SERVICE = "ingestion"
 
 config = context.config
 
@@ -25,12 +28,22 @@ config.set_main_option(
 target_metadata = Base.metadata
 
 
+def include_object(
+    obj: object, name: str, type_: str, reflected: bool, compare_to: object
+) -> bool:
+    """Restrict autogenerate/upgrade to this service's tables (FR-004)."""
+    if type_ == "table":
+        return getattr(obj, "info", {}).get("service") == SERVICE
+    return True
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode (no DBAPI connection)."""
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
+        include_object=include_object,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
@@ -39,7 +52,11 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        include_object=include_object,
+    )
     with context.begin_transaction():
         context.run_migrations()
 

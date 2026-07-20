@@ -284,6 +284,8 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 ## Active Technologies
 - Python 3.12 (pinned via `.python-version`, `python:3.12-slim` base images) + FastAPI, uvicorn, pydantic v2 + pydantic-settings, SQLAlchemy 2 (async) + asyncpg, alembic, redis-py (async), litellm (stub wiring only), boto3/aioboto3 (stub wiring only), prometheus-client, structlog (JSON logging) (001-project-scaffold)
 - Single PostgreSQL 17 + pgvector container hosting 3 databases (`course_core`, `ingestion`, `exam_sim`) created via init script; Redis 7 for cache/event bus (provisioned only, unused in this feature) (001-project-scaffold)
+- Python 3.12+ (uv workspace monorepo, `backend/`) + SQLAlchemy 2 (async) + asyncpg, Alembic 1.14+, pgvector (Python bindings for `Vector` column type), LiteLLM (Bedrock provider), tenacity (retry/backoff), redis-py ≥5 (async, `redis.asyncio`), aioboto3, structlog, pydantic-settings (002-foundation-adapters)
+- PostgreSQL 17 + pgvector (three per-service databases: `course_core`, `ingestion`, `exam_sim`); Redis 7 (session state, rate-limit counters); AWS S3 (course files) (002-foundation-adapters)
 
 ## Recent Changes
 - 001-project-scaffold: Added Python 3.12 (pinned via `.python-version`, `python:3.12-slim` base images) + FastAPI, uvicorn, pydantic v2 + pydantic-settings, SQLAlchemy 2 (async) + asyncpg, alembic, redis-py (async), litellm (stub wiring only), boto3/aioboto3 (stub wiring only), prometheus-client, structlog (JSON logging)

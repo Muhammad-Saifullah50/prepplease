@@ -5,11 +5,11 @@
 | # | Feature | Description |
 |---|---------|-------------|
 | 1 | [X] **Project Scaffold** | Python project structure, `pyproject.toml`, dependency management, linting/formatting config, CI pipeline (GitHub Actions) |
-| 2 | **LiteLLM Bridge** | Async client wrapper for AWS Bedrock via LiteLLM — model selection, retry logic, token tracking |
-| 3 | **PostgreSQL + pgvector Schema** | Alembic migrations for users, courses, past papers, exam blueprints, sessions, results |
-| 4 | **Redis Session Store** | Async Redis client for session caching, rate-limiting, real-time state |
-| 5 | **S3 File Adapter** | Async boto3 client wrapping upload/download/list for raw PDFs/slides/notes |
-| 6 | **IAM Credential Manager** | Encrypted local cred store, AWS secret rotation handling, least-privilege key validation |
+| 2 | [X] **LiteLLM Bridge** | Async client wrapper for AWS Bedrock via LiteLLM — model selection, retry logic, token tracking |
+| 3 | [X] **PostgreSQL + pgvector Schema** | Alembic migrations for users, courses, past papers, exam blueprints, sessions, results |
+| 4 | [X] **Redis Session Store** | Async Redis client for session caching, rate-limiting, real-time state |
+| 5 | [X] **S3 File Adapter** | Async boto3 client wrapping upload/download/list for raw PDFs/slides/notes |
+| 6 | [X] **IAM Credential Manager** | Encrypted local cred store, AWS secret rotation handling, least-privilege key validation |
 | 7 | [X] **Async Config & Logging** | Centralized settings (`pydantic-settings`), structured logging (`structlog`), health-check endpoints |
 
 ## Phase 2: Agents (sequential — each depends on prior extraction)

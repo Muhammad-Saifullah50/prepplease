@@ -6,6 +6,7 @@ instantiating :class:`Settings` never raises when configuration is absent
 time instead (FR-017).
 """
 
+from collections.abc import Iterable
 from functools import lru_cache
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -34,6 +35,26 @@ class Settings(BaseSettings):
     llm_provider: str | None = None
     llm_model: str | None = None
     llm_api_key: str | None = None
+    llm_embedding_model: str | None = None
+    llm_max_retries: int = 3
+    llm_retry_deadline_seconds: int = 60
+
+    # Rate limiting defaults (optional)
+    rate_limit_default_threshold: int | None = None
+    rate_limit_default_window_seconds: int | None = None
+
+    # S3 endpoint override (future MinIO swap)
+    s3_endpoint_url: str | None = None
+
+    _SECRET_FIELDS = frozenset({"aws_secret_access_key", "llm_api_key"})
+
+    def __repr_args__(self) -> "Iterable[tuple[str | None, object]]":
+        """Redact secret values in repr/str so they never reach logs."""
+        for name, value in super().__repr_args__():
+            if name in self._SECRET_FIELDS and value is not None:
+                yield name, "***"
+            else:
+                yield name, value
 
 
 @lru_cache

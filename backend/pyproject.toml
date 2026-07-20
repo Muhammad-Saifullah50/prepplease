@@ -28,6 +28,8 @@ dev = [
     "mypy>=1.13",
     "ruff>=0.8",
     "pre-commit>=4.0",
+    "fakeredis[async]>=2.26",
+    "psycopg[binary]>=3.2",
 ]
 
 [tool.ruff]
@@ -46,12 +48,21 @@ namespace_packages = true
 explicit_package_bases = true
 
 [[tool.mypy.overrides]]
-module = ["prometheus_client.*"]
+module = [
+    "prometheus_client.*",
+    "aioboto3.*",
+    "botocore.*",
+    "litellm.*",
+    "pgvector.*",
+]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 addopts = "--import-mode=importlib"
+markers = [
+    "migration: migration round-trip tests requiring the local docker Postgres (auto-skipped when unreachable)",
+]
 testpaths = [
     "tests",
     "services/course-core/tests",
