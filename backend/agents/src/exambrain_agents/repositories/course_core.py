@@ -13,7 +13,12 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from exambrain_shared.db import get_session_factory
 from exambrain_shared.errors import ObjectNotFoundError
-from exambrain_shared.models.course_core import Course, ExamBlueprint
+from exambrain_shared.models.course_core import (
+    Course,
+    ExamBlueprint,
+    Instructor,
+    InstructorResolution,
+)
 
 
 class CourseCoreRepository:
@@ -90,3 +95,72 @@ class CourseCoreRepository:
                 "structure": blueprint.structure,
                 "source_past_paper_ids": blueprint.source_past_paper_ids,
             }
+
+    # -- instructors / resolutions (US2, FR-005..FR-007) -------------------
+
+    async def list_instructors(self) -> list[dict[str, Any]]:
+        async with self._session_factory() as session:
+            rows = await session.scalars(select(Instructor))
+            return [
+                {
+                    "id": row.id,
+                    "normalized_name": row.normalized_name,
+                    "display_name": row.display_name,
+                }
+                for row in rows
+            ]
+
+    async def find_instructor_by_normalized_name(
+        self, normalized_name: str
+    ) -> dict[str, Any] | None:
+        async with self._session_factory() as session:
+            row = await session.scalar(
+                select(Instructor).where(
+                    Instructor.normalized_name == normalized_name
+                )
+            )
+            if row is None:
+                return None
+            return {
+                "id": row.id,
+                "normalized_name": row.normalized_name,
+                "display_name": row.display_name,
+            }
+
+    async def create_instructor(
+        self, normalized_name: str, display_name: str
+    ) -> uuid.UUID:
+        async with self._session_factory() as session, session.begin():
+            instructor = Instructor(
+                normalized_name=normalized_name, display_name=display_name
+            )
+            session.add(instructor)
+            await session.flush()
+            return instructor.id
+
+    async def save_resolution(
+        self, course_id: uuid.UUID, resolution: dict[str, Any]
+    ) -> None:
+        async with self._session_factory() as session, session.begin():
+            session.add(
+                InstructorResolution(
+                    course_id=course_id,
+                    raw_name=resolution["raw_name"],
+                    normalized_name=resolution["normalized_name"],
+                    instructor_id=resolution.get("instructor_id"),
+                    outcome=resolution["outcome"],
+                    confidence=resolution["confidence"],
+                    candidates=resolution.get("candidates", []),
+                    needs_review=resolution["outcome"] == "needs_review",
+                )
+            )
+
+    async def link_course_instructor(
+        self, course_id: uuid.UUID, instructor_id: uuid.UUID
+    ) -> None:
+        """Link the course to its resolved identity (matched/created only)."""
+        async with self._session_factory() as session, session.begin():
+            course = await session.get(Course, course_id)
+            if course is None:
+                raise ObjectNotFoundError(str(course_id))
+            course.instructor_id = instructor_id

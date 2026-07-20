@@ -20,6 +20,8 @@ __all__ = [
     "Base",
     "TimestampMixin",
     "Course",
+    "Instructor",
+    "InstructorResolution",
     "DocumentChunk",
     "ExamBlueprint",
     "ExamSession",
@@ -52,6 +54,8 @@ class TimestampMixin:
 from exambrain_shared.models.course_core import (  # noqa: E402
     Course,
     ExamBlueprint,
+    Instructor,
+    InstructorResolution,
     Result,
     User,
 )

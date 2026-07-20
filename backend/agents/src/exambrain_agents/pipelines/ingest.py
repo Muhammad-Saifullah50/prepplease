@@ -16,6 +16,12 @@ from agents.models.interface import Model
 from pydantic import BaseModel
 
 from exambrain_agents import config
+from exambrain_agents.alignment.agent import (
+    alignment_input,
+    build_alignment_agent,
+    enforce_banding,
+    score_stored_instructors,
+)
 from exambrain_agents.blueprint.agent import (
     blueprint_input,
     build_blueprint_agent,
@@ -25,6 +31,7 @@ from exambrain_agents.chunking import chunk_document
 from exambrain_agents.errors import ParsingFailedError, UnsupportedFormatError
 from exambrain_agents.parsing.agent import build_parsing_agent, parsing_input
 from exambrain_agents.runner import run_agent, run_agent_with_corrective_retry
+from exambrain_agents.schemas.alignment import InstructorResolution
 from exambrain_agents.schemas.blueprint import BlueprintStructure
 from exambrain_agents.schemas.parsing import ParsedDocument
 from exambrain_agents.tools.extraction import (
@@ -33,6 +40,7 @@ from exambrain_agents.tools.extraction import (
     extract_pptx_text,
     ocr_pdf_pages,
 )
+from exambrain_agents.tools.matching import normalize_name
 
 logger = structlog.get_logger(__name__)
 
@@ -146,6 +154,10 @@ async def ingest_course_file(
             parsing_confidence=document.confidence,
             needs_review=needs_review,
         )
+        # US2: resolve the course's recorded instructor name (FR-005..007).
+        await _align_course_instructor(
+            course_id, course_repo, alignment_model
+        )
         if not needs_review:
             blueprint_version = await _extract_blueprint(
                 course_id,
@@ -231,7 +243,7 @@ async def _extract_blueprint(
         paper_texts.append((paper["id"], body))
 
     agent = build_blueprint_agent(
-        alignment_tool=_alignment_tool(alignment_model)
+        alignment_tool=_alignment_tool(alignment_model, course_repo)
     )
     structure: BlueprintStructure
     structure, failures = await run_agent_with_corrective_retry(
@@ -247,6 +259,12 @@ async def _extract_blueprint(
             failure_count=len(failures),
         )
 
+    # Persist instructor sightings with banding re-enforced (FR-007/008).
+    for sighting in structure.instructor_sightings:
+        await _persist_resolution(
+            course_id, sighting, course_repo, link_course=False
+        )
+
     _, version = await course_repo.write_blueprint_version(
         course_id,
         structure.model_dump(mode="json"),
@@ -255,6 +273,94 @@ async def _extract_blueprint(
     return int(version)
 
 
-def _alignment_tool(alignment_model: Model | None) -> Any:
-    """Alignment agent-as-tool, attached in US2 (T046); None until then."""
-    return None
+async def _align_course_instructor(
+    course_id: UUID, course_repo: Any, alignment_model: Model | None
+) -> None:
+    """Resolve the course's recorded instructor name (US2, FR-005..FR-007).
+
+    Alignment failures never fail the ingest — the paper is already
+    completed; the resolution can re-run on the next ingest.
+    """
+    course = await course_repo.get_course(course_id)
+    raw_name = course.get("instructor_name")
+    if not raw_name:
+        return
+    try:
+        agent = build_alignment_agent(repo=course_repo)
+        resolution: InstructorResolution = await run_agent(
+            agent, alignment_input(raw_name), model=alignment_model
+        )
+        await _persist_resolution(
+            course_id, resolution, course_repo, link_course=True
+        )
+    except Exception:
+        logger.warning(
+            "instructor_alignment_failed", course_id=str(course_id)
+        )
+
+
+async def _persist_resolution(
+    course_id: UUID,
+    resolution: InstructorResolution,
+    course_repo: Any,
+    *,
+    link_course: bool,
+) -> None:
+    """Persist one resolution with banding re-enforced in code (FR-007).
+
+    Band b never merges; the course link is set only on matched/created
+    (FR-006) and only for the course's own instructor resolution.
+    """
+    instructors = await course_repo.list_instructors()
+    scored = score_stored_instructors(resolution.raw_name, instructors)
+    final = enforce_banding(resolution, scored)
+
+    instructor_id: UUID | None = None
+    if final.outcome == "matched":
+        instructor_id = final.matched_instructor_id
+    elif final.outcome == "created":
+        normalized = normalize_name(final.raw_name)
+        existing = await course_repo.find_instructor_by_normalized_name(
+            normalized
+        )
+        instructor_id = (
+            existing["id"]
+            if existing
+            else await course_repo.create_instructor(
+                normalized, final.raw_name.strip()
+            )
+        )
+
+    await course_repo.save_resolution(
+        course_id,
+        {
+            "raw_name": final.raw_name,
+            "normalized_name": normalize_name(final.raw_name),
+            "instructor_id": instructor_id,
+            "outcome": final.outcome,
+            "confidence": final.confidence,
+            "candidates": [c.model_dump(mode="json") for c in final.candidates],
+        },
+    )
+    if link_course and instructor_id is not None:
+        await course_repo.link_course_instructor(course_id, instructor_id)
+
+
+def _alignment_tool(alignment_model: Model | None, course_repo: Any) -> Any:
+    """Alignment agent wrapped as ``resolve_instructor_sighting`` (FR-008).
+
+    ``Agent.as_tool`` runs the full alignment agent inside the blueprint
+    agent's run; the typed resolution surfaces in the blueprint output for
+    the pipeline to persist (read-only here — R2).
+    """
+    agent = build_alignment_agent(repo=course_repo)
+    if alignment_model is not None:
+        agent = agent.clone(model=alignment_model)
+    return agent.as_tool(
+        tool_name="resolve_instructor_sighting",
+        tool_description=(
+            "Resolve a printed instructor name that differs from the "
+            "course's recorded instructor. Input: the raw name as printed. "
+            "Returns the typed resolution."
+        ),
+    )

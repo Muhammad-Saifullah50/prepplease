@@ -115,18 +115,18 @@ Backend uv workspace at `backend/`; new workspace member `backend/agents/` (pack
 
 ### Tests (write first, verify they fail)
 
-- [ ] T038 [P] [US2] Migration test (`@pytest.mark.migration`) for course-core `instructors`, `instructor_resolutions`, `courses.instructor_id` in `backend/services/course-core/tests/test_migrations.py`
-- [ ] T039 [P] [US2] Write `backend/agents/tests/test_tools_matching.py`: `normalize_name` (case, honorifics, punctuation, whitespace — FR-005), `score_name_candidates` rapidfuzz determinism and ordering, `list_known_instructors` read-only shape
-- [ ] T040 [P] [US2] Write `backend/agents/tests/test_agent_alignment.py`: FakeModel-scripted — ≥0.90 match, <0.70 create, band-b needs_review with candidates, exact-name-tie conflicting context → needs_review; pipeline banding coercion overrides a misbehaving agent output (FR-007 hard rule)
+- [X] T038 [P] [US2] Migration test (`@pytest.mark.migration`) for course-core `instructors`, `instructor_resolutions`, `courses.instructor_id` in `backend/services/course-core/tests/test_migrations.py`
+- [X] T039 [P] [US2] Write `backend/agents/tests/test_tools_matching.py`: `normalize_name` (case, honorifics, punctuation, whitespace — FR-005), `score_name_candidates` rapidfuzz determinism and ordering, `list_known_instructors` read-only shape
+- [X] T040 [P] [US2] Write `backend/agents/tests/test_agent_alignment.py`: FakeModel-scripted — ≥0.90 match, <0.70 create, band-b needs_review with candidates, exact-name-tie conflicting context → needs_review; pipeline banding coercion overrides a misbehaving agent output (FR-007 hard rule)
 
 ### Implementation
 
-- [ ] T041 [P] [US2] Create course-core migration `backend/services/course-core/alembic/versions/20260720_002_instructors.py`: `instructors` (unique normalized_name), `instructor_resolutions` (outcome CHECK, candidates JSONB, needs_review), `courses.instructor_id` FK SET NULL + index per data-model.md; make T038 pass
-- [ ] T042 [US2] Implement `backend/agents/src/exambrain_agents/tools/matching.py`: `normalize_name` (single shared definition), `score_name_candidates` (rapidfuzz token_sort/WRatio scaled 0–1), `list_known_instructors` (read-only repo query); make T039 pass
-- [ ] T043 [US2] Implement alignment agent in `backend/agents/src/exambrain_agents/alignment/prompt.py` + `alignment/agent.py`: `output_type=InstructorResolution`, matching tools registered, thresholds surfaced in prompt from settings
-- [ ] T044 [US2] Extend `backend/agents/src/exambrain_agents/repositories/course_core.py`: instructor create/find-by-normalized-name, resolution persistence, `courses.instructor_id` linking (only on matched/created — FR-006/FR-007)
-- [ ] T045 [US2] Integrate alignment into `backend/agents/src/exambrain_agents/pipelines/ingest.py`: after past-paper completion, run alignment on `course.instructor_name`, re-enforce banding in code (band-b never merges, needs_review persisted with candidates, course link only on matched/created); make T040 pass
-- [ ] T046 [US2] Attach alignment agent to blueprint agent as tool `resolve_instructor_sighting` via `Agent.as_tool(...)` in `backend/agents/src/exambrain_agents/blueprint/agent.py` (FR-008, research R2); prompt requires routing any differing printed name to the tool; add sighting test to `backend/agents/tests/test_agent_blueprint.py` and persistence of sightings (banding re-enforced) in `pipelines/ingest.py`
+- [X] T041 [P] [US2] Create course-core migration `backend/services/course-core/alembic/versions/20260720_002_instructors.py`: `instructors` (unique normalized_name), `instructor_resolutions` (outcome CHECK, candidates JSONB, needs_review), `courses.instructor_id` FK SET NULL + index per data-model.md; make T038 pass
+- [X] T042 [US2] Implement `backend/agents/src/exambrain_agents/tools/matching.py`: `normalize_name` (single shared definition), `score_name_candidates` (rapidfuzz token_sort/WRatio scaled 0–1), `list_known_instructors` (read-only repo query); make T039 pass
+- [X] T043 [US2] Implement alignment agent in `backend/agents/src/exambrain_agents/alignment/prompt.py` + `alignment/agent.py`: `output_type=InstructorResolution`, matching tools registered, thresholds surfaced in prompt from settings
+- [X] T044 [US2] Extend `backend/agents/src/exambrain_agents/repositories/course_core.py`: instructor create/find-by-normalized-name, resolution persistence, `courses.instructor_id` linking (only on matched/created — FR-006/FR-007)
+- [X] T045 [US2] Integrate alignment into `backend/agents/src/exambrain_agents/pipelines/ingest.py`: after past-paper completion, run alignment on `course.instructor_name`, re-enforce banding in code (band-b never merges, needs_review persisted with candidates, course link only on matched/created); make T040 pass
+- [X] T046 [US2] Attach alignment agent to blueprint agent as tool `resolve_instructor_sighting` via `Agent.as_tool(...)` in `backend/agents/src/exambrain_agents/blueprint/agent.py` (FR-008, research R2); prompt requires routing any differing printed name to the tool; add sighting test to `backend/agents/tests/test_agent_blueprint.py` and persistence of sightings (banding re-enforced) in `pipelines/ingest.py`
 
 **Checkpoint**: Ingest now resolves instructors; blueprint sightings routed through alignment.
 

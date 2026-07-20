@@ -113,3 +113,44 @@ def test_prompt_covers_merge_evidence_and_recency_rules() -> None:
     text = BLUEPRINT_PROMPT_V1.lower()
     for keyword in ("merge", "evidence", "recent", "confidence"):
         assert keyword in text, f"prompt missing '{keyword}' guidance"
+
+
+async def test_sighting_routed_through_alignment_tool() -> None:
+    """FR-008: the blueprint agent resolves sightings via the attached
+    alignment agent-as-tool, and the resolution surfaces in its output."""
+    from exambrain_agents.pipelines.ingest import _alignment_tool
+    from exambrain_agents.schemas.alignment import InstructorResolution
+    from exambrain_agents.testing import ToolCall
+    from tests.conftest import FakeCourseCoreRepo
+
+    repo = FakeCourseCoreRepo()
+    sighting = InstructorResolution(
+        raw_name="Dr. Someone New",
+        normalized_name="someone new",
+        outcome="created",
+        matched_instructor_id=None,
+        confidence=1.0,
+        candidates=[],
+    )
+    # The inner alignment agent inherits the blueprint run's FakeModel via
+    # as_tool; script: (1) blueprint calls the tool, (2) alignment answers,
+    # (3) blueprint finishes with the sighting embedded.
+    structure = make_structure(paper_ids=[PAPER_A]).model_copy(
+        update={"instructor_sightings": [sighting]}
+    )
+    model = FakeModel(
+        outputs=[
+            ToolCall(
+                "resolve_instructor_sighting", {"input": "Dr. Someone New"}
+            ),
+            FinalOutput(sighting),  # inner alignment agent's final output
+            FinalOutput(structure),
+        ]
+    )
+    tool = _alignment_tool(model, repo)
+    assert tool.name == "resolve_instructor_sighting"
+    agent = build_blueprint_agent(alignment_tool=tool)
+    result = await run_agent(
+        agent, blueprint_input([(PAPER_A, "paper text")]), model=model
+    )
+    assert result.instructor_sightings == [sighting]

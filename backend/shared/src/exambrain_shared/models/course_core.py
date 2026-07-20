@@ -4,7 +4,14 @@ import uuid
 from decimal import Decimal
 from typing import Any
 
-from sqlalchemy import ForeignKey, Index, Numeric, UniqueConstraint, text
+from sqlalchemy import (
+    CheckConstraint,
+    ForeignKey,
+    Index,
+    Numeric,
+    UniqueConstraint,
+    text,
+)
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -23,12 +30,23 @@ class User(TimestampMixin, Base):
     display_name: Mapped[str] = mapped_column(nullable=False)
 
 
+class Instructor(TimestampMixin, Base):
+    """A unique professor identity keyed by normalized name (FR-006)."""
+
+    __tablename__ = "instructors"
+    __table_args__ = {"info": {"service": SERVICE}}
+
+    normalized_name: Mapped[str] = mapped_column(unique=True, nullable=False)
+    display_name: Mapped[str] = mapped_column(nullable=False)
+
+
 class Course(TimestampMixin, Base):
     """A course owned by a user."""
 
     __tablename__ = "courses"
     __table_args__ = (
         Index("ix_courses_user_id", "user_id"),
+        Index("ix_courses_instructor_id", "instructor_id"),
         {"info": {"service": SERVICE}},
     )
 
@@ -40,6 +58,46 @@ class Course(TimestampMixin, Base):
     title: Mapped[str] = mapped_column(nullable=False)
     code: Mapped[str | None] = mapped_column(nullable=True)
     instructor_name: Mapped[str | None] = mapped_column(nullable=True)
+    instructor_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("instructors.id", ondelete="SET NULL"),
+        nullable=True,  # at most one resolved identity per course (FR-006)
+    )
+
+
+class InstructorResolution(TimestampMixin, Base):
+    """Outcome of one alignment run for a course (FR-007)."""
+
+    __tablename__ = "instructor_resolutions"
+    __table_args__ = (
+        CheckConstraint(
+            "outcome IN ('matched', 'created', 'needs_review')",
+            name="ck_instructor_resolutions_outcome",
+        ),
+        Index("ix_instructor_resolutions_course_id", "course_id"),
+        {"info": {"service": SERVICE}},
+    )
+
+    course_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("courses.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    raw_name: Mapped[str] = mapped_column(nullable=False)
+    normalized_name: Mapped[str] = mapped_column(nullable=False)
+    instructor_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("instructors.id", ondelete="SET NULL"),
+        nullable=True,  # set when matched or created
+    )
+    outcome: Mapped[str] = mapped_column(nullable=False)
+    confidence: Mapped[Decimal] = mapped_column(Numeric(4, 3), nullable=False)
+    candidates: Mapped[list[Any]] = mapped_column(
+        JSONB, nullable=False, server_default=text("'[]'::jsonb")
+    )
+    needs_review: Mapped[bool] = mapped_column(
+        nullable=False, server_default=text("false")
+    )
 
 
 class ExamBlueprint(TimestampMixin, Base):

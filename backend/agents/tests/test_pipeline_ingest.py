@@ -329,3 +329,104 @@ async def test_blueprint_serialized_via_course_lock(
     """R6: version write happens under the per-course advisory lock."""
     await ingest_paper(env, pdf=digital_pdf_bytes)
     assert env["course_repo"].lock_acquisitions == [env["course_id"]]
+
+
+async def test_ingest_resolves_course_instructor(
+    fake_s3: FakeS3,
+    fake_embedder: FakeEmbedder,
+    ingestion_repo: FakeIngestionRepo,
+    course_repo: FakeCourseCoreRepo,
+    digital_pdf_bytes: bytes,
+) -> None:
+    """US2 integration: after paper completion, the course's instructor
+    name is aligned — banding enforced in code — and the course linked."""
+    from exambrain_agents.schemas.alignment import InstructorResolution
+
+    course_id = course_repo.add_course(instructor_name="Dr. Abdul Rahman")
+    existing = course_repo.add_instructor("abdul rahman", "Abdul Rahman")
+    paper_id = ingestion_repo.add_paper(course_id, "courses/c/p.pdf")
+    fake_s3.objects["courses/c/p.pdf"] = digital_pdf_bytes
+
+    # Misbehaving alignment agent claims "created" — code re-bands to
+    # matched because the deterministic score vs "abdul rahman" is 1.0.
+    bad_resolution = InstructorResolution(
+        raw_name="Dr. Abdul Rahman",
+        normalized_name="abdul rahman",
+        outcome="created",
+        matched_instructor_id=None,
+        confidence=1.0,
+        candidates=[],
+    )
+    result = await ingest_course_file(
+        course_id,
+        "courses/c/p.pdf",
+        "past_paper",
+        past_paper_id=paper_id,
+        s3=fake_s3,
+        embedder=fake_embedder,
+        ingestion_repo=ingestion_repo,
+        course_repo=course_repo,
+        parsing_model=FakeModel(outputs=[FinalOutput(parsed_paper())]),
+        blueprint_model=FakeModel(
+            outputs=[FinalOutput(blueprint_for([paper_id]))]
+        ),
+        alignment_model=FakeModel(outputs=[FinalOutput(bad_resolution)]),
+    )
+    assert result.status == "completed"
+    [resolution] = course_repo.resolutions
+    assert resolution["outcome"] == "matched"  # banding overrode the agent
+    assert resolution["instructor_id"] == existing
+    assert course_repo.courses[course_id]["instructor_id"] == existing
+
+
+async def test_ingest_gray_zone_never_links_course(
+    fake_s3: FakeS3,
+    fake_embedder: FakeEmbedder,
+    ingestion_repo: FakeIngestionRepo,
+    course_repo: FakeCourseCoreRepo,
+    digital_pdf_bytes: bytes,
+) -> None:
+    """FR-007 band b: needs_review persisted with candidates, no link."""
+    from exambrain_agents.schemas.alignment import Candidate, InstructorResolution
+
+    course_id = course_repo.add_course(instructor_name="Dr. A. Raheem Khan")
+    near_miss = course_repo.add_instructor(
+        "abdul raheem khanzada", "Abdul Raheem Khanzada"
+    )
+    paper_id = ingestion_repo.add_paper(course_id, "courses/c/p.pdf")
+    fake_s3.objects["courses/c/p.pdf"] = digital_pdf_bytes
+
+    agent_resolution = InstructorResolution(
+        raw_name="Dr. A. Raheem Khan",
+        normalized_name="a raheem khan",
+        outcome="needs_review",
+        matched_instructor_id=None,
+        confidence=0.8,
+        candidates=[
+            Candidate(
+                instructor_id=near_miss,
+                normalized_name="abdul raheem khanzada",
+                score=0.8,
+            )
+        ],
+    )
+    await ingest_course_file(
+        course_id,
+        "courses/c/p.pdf",
+        "past_paper",
+        past_paper_id=paper_id,
+        s3=fake_s3,
+        embedder=fake_embedder,
+        ingestion_repo=ingestion_repo,
+        course_repo=course_repo,
+        parsing_model=FakeModel(outputs=[FinalOutput(parsed_paper())]),
+        blueprint_model=FakeModel(
+            outputs=[FinalOutput(blueprint_for([paper_id]))]
+        ),
+        alignment_model=FakeModel(outputs=[FinalOutput(agent_resolution)]),
+    )
+    [resolution] = course_repo.resolutions
+    assert resolution["outcome"] == "needs_review"
+    assert resolution["candidates"]  # candidate list persisted
+    assert resolution["instructor_id"] is None
+    assert course_repo.courses[course_id]["instructor_id"] is None  # never merged

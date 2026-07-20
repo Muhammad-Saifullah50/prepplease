@@ -22,6 +22,8 @@ EXPECTED_SERVICES = {
     "courses": "course_core",
     "exam_blueprints": "course_core",
     "results": "course_core",
+    "instructors": "course_core",
+    "instructor_resolutions": "course_core",
     "past_papers": "ingestion",
     "document_chunks": "ingestion",
     "exam_sessions": "exam_sim",
