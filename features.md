@@ -16,11 +16,11 @@
 
 | # | Feature | Description |
 |---|---------|-------------|
-| 8 | **Multi-Format Parsing Agent** | OCR (pytesseract/docling) + pdfplumber for scanned docs → clean text with hierarchy |
-| 9 | **Instructor Alignment Agent** | Fuzzy string matching (rapidfuzz) across professor name variants → unified DB identity |
-| 10 | **Blueprint Extraction Agent** | Parse historical papers → JSON blueprint: sections, question types, marks, topic weight matrix |
-| 11 | **Exam Blueprint Generator** | Combine blueprint JSON + lecture note chunks → prompt Bedrock → original mock exam |
-| 12 | **TA Evaluation Agent** | Parse student answers against rubric → point-by-point feedback + weak-topic index update |
+| 8 | [X] **Multi-Format Parsing Agent** | OCR (pytesseract/docling) + pdfplumber for scanned docs → clean text with hierarchy |
+| 9 | [X] **Instructor Alignment Agent** | Fuzzy string matching (rapidfuzz) across professor name variants → unified DB identity |
+| 10 | [X] **Blueprint Extraction Agent** | Parse historical papers → JSON blueprint: sections, question types, marks, topic weight matrix |
+| 11 | [X] **Exam Blueprint Generator** | Combine blueprint JSON + lecture note chunks → prompt Bedrock → original mock exam |
+| 12 | [X] **TA Evaluation Agent** | Parse student answers against rubric → point-by-point feedback + weak-topic index update |
 
 ## Phase 3: Microservices
 
