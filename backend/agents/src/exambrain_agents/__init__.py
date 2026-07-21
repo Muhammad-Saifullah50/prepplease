@@ -24,13 +24,66 @@ from exambrain_agents.pipelines.ingest import (  # noqa: E402
     IngestResult,
     ingest_course_file,
 )
+from exambrain_agents.schemas.alignment import (  # noqa: E402
+    Candidate,
+    InstructorResolution,
+)
+from exambrain_agents.schemas.blueprint import (  # noqa: E402
+    BlueprintSection,
+    BlueprintStructure,
+    PaperEvidence,
+    TopicWeight,
+)
+from exambrain_agents.schemas.evaluation import (  # noqa: E402
+    EvaluationOutput,
+    QuestionScore,
+)
+from exambrain_agents.schemas.generation import (  # noqa: E402
+    ExamQuestion,
+    ExamSection,
+    GeneratedExam,
+    RubricEntry,
+)
+from exambrain_agents.schemas.parsing import (  # noqa: E402
+    ParsedDocument,
+    ParsedQuestion,
+    ParsedSection,
+    ParsedSlide,
+)
+from exambrain_agents.testing import (  # noqa: E402
+    FakeModel,
+    FinalOutput,
+    ToolCall,
+)
 
 __all__ = [
+    # Pipelines (FR-020)
+    "evaluate_submission",
+    "generate_exam",
+    "ingest_course_file",
     "EvaluationRecord",
     "GeneratedExamRecord",
     "IngestResult",
     "SubmittedAnswer",
-    "evaluate_submission",
-    "generate_exam",
-    "ingest_course_file",
+    # Agent output schemas
+    "BlueprintSection",
+    "BlueprintStructure",
+    "Candidate",
+    "EvaluationOutput",
+    "ExamQuestion",
+    "ExamSection",
+    "GeneratedExam",
+    "InstructorResolution",
+    "PaperEvidence",
+    "ParsedDocument",
+    "ParsedQuestion",
+    "ParsedSection",
+    "ParsedSlide",
+    "QuestionScore",
+    "RubricEntry",
+    "TopicWeight",
+    # Testing (FR-024)
+    "FakeModel",
+    "FinalOutput",
+    "ToolCall",
 ]

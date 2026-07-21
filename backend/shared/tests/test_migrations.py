@@ -17,7 +17,7 @@ from sqlalchemy.engine import Engine
 
 pytestmark = pytest.mark.migration
 
-BACKEND = Path(__file__).resolve().parents[1]
+BACKEND = Path(__file__).resolve().parents[2]
 
 PG = "postgresql+psycopg://exambrain:exambrain@localhost:5432"
 PG_ASYNC = "postgresql+asyncpg://exambrain:exambrain@localhost:5432"
@@ -25,7 +25,14 @@ PG_ASYNC = "postgresql+asyncpg://exambrain:exambrain@localhost:5432"
 SERVICES = {
     "course_core": {
         "dir": BACKEND / "services" / "course-core",
-        "tables": {"users", "courses", "exam_blueprints", "results"},
+        "tables": {
+            "users",
+            "courses",
+            "exam_blueprints",
+            "results",
+            "instructors",
+            "instructor_resolutions",
+        },
     },
     "ingestion": {
         "dir": BACKEND / "services" / "ingestion-pipeline",
@@ -33,7 +40,7 @@ SERVICES = {
     },
     "exam_sim": {
         "dir": BACKEND / "services" / "exam-simulation",
-        "tables": {"exam_sessions"},
+        "tables": {"exam_sessions", "generated_exams"},
     },
 }
 

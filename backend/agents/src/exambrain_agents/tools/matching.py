@@ -39,9 +39,7 @@ def normalize_name(raw: str) -> str:
     return " ".join(words)
 
 
-def score_name_candidates(
-    name: str, candidates: list[str]
-) -> list[dict[str, Any]]:
+def score_name_candidates(name: str, candidates: list[str]) -> list[dict[str, Any]]:
     """rapidfuzz similarity of ``name`` vs each candidate, sorted desc.
 
     Inputs are normalized first; scores are token_sort_ratio scaled to
@@ -53,8 +51,7 @@ def score_name_candidates(
         {
             "candidate": candidate,
             "score": round(
-                fuzz.token_sort_ratio(normalized, normalize_name(candidate))
-                / 100.0,
+                fuzz.token_sort_ratio(normalized, normalize_name(candidate)) / 100.0,
                 4,
             ),
         }

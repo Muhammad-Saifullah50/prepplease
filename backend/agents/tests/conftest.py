@@ -77,9 +77,7 @@ class FakeIngestionRepo:
         self.papers: dict[uuid.UUID, dict[str, Any]] = {}
         self.chunks: dict[uuid.UUID, dict[str, Any]] = {}
 
-    def add_paper(
-        self, course_id: uuid.UUID, s3_key: str, **extra: Any
-    ) -> uuid.UUID:
+    def add_paper(self, course_id: uuid.UUID, s3_key: str, **extra: Any) -> uuid.UUID:
         paper_id = uuid.uuid4()
         self.papers[paper_id] = {
             "id": paper_id,
@@ -112,9 +110,7 @@ class FakeIngestionRepo:
         )
 
     async def mark_failed(self, paper_id: uuid.UUID, reason: str) -> None:
-        self.papers[paper_id].update(
-            processing_status="failed", failure_reason=reason
-        )
+        self.papers[paper_id].update(processing_status="failed", failure_reason=reason)
 
     async def replace_chunks(
         self,
@@ -126,9 +122,7 @@ class FakeIngestionRepo:
     ) -> int:
         """Atomic delete-and-rewrite of one source's chunks (FR-004)."""
         stale = [
-            cid
-            for cid, c in self.chunks.items()
-            if c["source_s3_key"] == source_s3_key
+            cid for cid, c in self.chunks.items() if c["source_s3_key"] == source_s3_key
         ]
         for cid in stale:
             del self.chunks[cid]

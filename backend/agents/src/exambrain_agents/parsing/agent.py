@@ -23,9 +23,7 @@ from exambrain_agents.tools.extraction import (
 )
 
 
-def _make_tools(
-    pdf_bytes: bytes | None, pptx_bytes: bytes | None
-) -> list[Any]:
+def _make_tools(pdf_bytes: bytes | None, pptx_bytes: bytes | None) -> list[Any]:
     """Read-only re-extraction tools closing over the document bytes."""
 
     @function_tool
@@ -82,9 +80,7 @@ def parsing_input(
     """Serialize preprocessed extraction output as the agent's input."""
     payload: dict[str, Any] = {"kind": kind, "document_type": document_type}
     if pages is not None:
-        payload["pages"] = [
-            {"page": p.page, "text": p.text} for p in pages
-        ]
+        payload["pages"] = [{"page": p.page, "text": p.text} for p in pages]
     if slides is not None:
         payload["slides"] = [
             {"slide": s.slide, "title": s.title, "text": s.text} for s in slides

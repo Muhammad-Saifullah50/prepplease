@@ -140,9 +140,7 @@ async def test_sighting_routed_through_alignment_tool() -> None:
     )
     model = FakeModel(
         outputs=[
-            ToolCall(
-                "resolve_instructor_sighting", {"input": "Dr. Someone New"}
-            ),
+            ToolCall("resolve_instructor_sighting", {"input": "Dr. Someone New"}),
             FinalOutput(sighting),  # inner alignment agent's final output
             FinalOutput(structure),
         ]

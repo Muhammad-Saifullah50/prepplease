@@ -10,9 +10,7 @@ class AgentTurnLimitError(RuntimeError):
     """An agent exceeded its ``max_turns`` interaction budget."""
 
     def __init__(self, agent_name: str, max_turns: int) -> None:
-        super().__init__(
-            f"agent '{agent_name}' exceeded its turn limit ({max_turns})"
-        )
+        super().__init__(f"agent '{agent_name}' exceeded its turn limit ({max_turns})")
         self.agent_name = agent_name
         self.max_turns = max_turns
 
@@ -61,7 +59,6 @@ class UnsupportedFormatError(RuntimeError):
 
     def __init__(self, s3_key: str) -> None:
         super().__init__(
-            f"unsupported document format for '{s3_key}' "
-            "(supported: .pdf, .pptx)"
+            f"unsupported document format for '{s3_key}' (supported: .pdf, .pptx)"
         )
         self.s3_key = s3_key

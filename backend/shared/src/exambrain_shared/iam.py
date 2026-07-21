@@ -197,7 +197,9 @@ class CredentialManager:
                     state=(
                         "allowed"
                         if decisions.get(a) == "allowed"
-                        else "denied" if a in decisions else "cannot_verify"
+                        else "denied"
+                        if a in decisions
+                        else "cannot_verify"
                     ),
                 )
                 for a in action_list

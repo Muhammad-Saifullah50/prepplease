@@ -74,9 +74,7 @@ async def test_gray_zone_needs_review_with_candidates(
     cands = [Candidate(instructor_id=iid, normalized_name="abdul raheem", score=0.8)]
     model = FakeModel(
         outputs=[
-            FinalOutput(
-                resolution("needs_review", confidence=0.8, candidates=cands)
-            )
+            FinalOutput(resolution("needs_review", confidence=0.8, candidates=cands))
         ]
     )
     result = await run_agent(
@@ -134,9 +132,7 @@ class TestEnforceBanding:
     def test_exact_tie_conflicting_context_needs_review(self) -> None:
         """Edge case: exact normalized-name tie is surfaced for review when
         the agent flags it — code never silently merges over a review flag."""
-        tie = resolution(
-            "needs_review", confidence=1.0, candidates=self.cands(1.0)
-        )
+        tie = resolution("needs_review", confidence=1.0, candidates=self.cands(1.0))
         fixed = enforce_banding(tie, self.cands(1.0))
         assert fixed.outcome == "needs_review"
         assert fixed.matched_instructor_id is None

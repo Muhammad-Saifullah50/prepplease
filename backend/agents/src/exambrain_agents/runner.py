@@ -111,9 +111,7 @@ async def run_agent_with_corrective_retry[T](
         + "\n".join(f"- {failure}" for failure in failures)
         + "\nProduce a corrected output that resolves every failure."
     )
-    logger.info(
-        "agent_corrective_retry", agent=agent.name, failure_count=len(failures)
-    )
+    logger.info("agent_corrective_retry", agent=agent.name, failure_count=len(failures))
     output = await run_agent(agent, corrective, model=model, max_turns=max_turns)
     return output, list(validate(output))
 

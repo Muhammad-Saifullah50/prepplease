@@ -32,7 +32,8 @@ class PastPaper(TimestampMixin, Base):
     )
 
     course_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False  # identifier-only ref (course_core DB)
+        UUID(as_uuid=True),
+        nullable=False,  # identifier-only ref (course_core DB)
     )
     s3_key: Mapped[str] = mapped_column(nullable=False)
     academic_term: Mapped[str | None] = mapped_column(nullable=True)
@@ -42,7 +43,8 @@ class PastPaper(TimestampMixin, Base):
     )
     failure_reason: Mapped[str | None] = mapped_column(nullable=True)
     parsing_confidence: Mapped[Decimal | None] = mapped_column(
-        Numeric(4, 3), nullable=True  # set on completed parse (FR-002)
+        Numeric(4, 3),
+        nullable=True,  # set on completed parse (FR-002)
     )
     needs_review: Mapped[bool] = mapped_column(
         nullable=False, server_default=text("false")
@@ -66,7 +68,8 @@ class DocumentChunk(TimestampMixin, Base):
     )
 
     course_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False  # identifier-only ref
+        UUID(as_uuid=True),
+        nullable=False,  # identifier-only ref
     )
     past_paper_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
@@ -80,5 +83,6 @@ class DocumentChunk(TimestampMixin, Base):
         JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )
     embedding: Mapped[Any | None] = mapped_column(
-        Vector(EMBEDDING_DIMENSIONS), nullable=True  # NULL until embedded
+        Vector(EMBEDDING_DIMENSIONS),
+        nullable=True,  # NULL until embedded
     )

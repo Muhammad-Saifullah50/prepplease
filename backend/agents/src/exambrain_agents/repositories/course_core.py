@@ -77,9 +77,7 @@ class CourseCoreRepository:
             await session.flush()
             return blueprint.id, version
 
-    async def latest_blueprint(
-        self, course_id: uuid.UUID
-    ) -> dict[str, Any] | None:
+    async def latest_blueprint(self, course_id: uuid.UUID) -> dict[str, Any] | None:
         async with self._session_factory() as session:
             blueprint = await session.scalar(
                 select(ExamBlueprint)
@@ -116,9 +114,7 @@ class CourseCoreRepository:
     ) -> dict[str, Any] | None:
         async with self._session_factory() as session:
             row = await session.scalar(
-                select(Instructor).where(
-                    Instructor.normalized_name == normalized_name
-                )
+                select(Instructor).where(Instructor.normalized_name == normalized_name)
             )
             if row is None:
                 return None

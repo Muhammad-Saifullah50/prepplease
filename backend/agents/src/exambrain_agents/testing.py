@@ -124,9 +124,7 @@ class FakeModel(Model):
 
         return ModelResponse(
             output=items,
-            usage=Usage(
-                requests=1, input_tokens=10, output_tokens=10, total_tokens=20
-            ),
+            usage=Usage(requests=1, input_tokens=10, output_tokens=10, total_tokens=20),
             response_id=f"fake_{self.turns}",
         )
 

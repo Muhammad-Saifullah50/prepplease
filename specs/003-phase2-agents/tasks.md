@@ -156,11 +156,11 @@ Backend uv workspace at `backend/`; new workspace member `backend/agents/` (pack
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T053 [P] Write `backend/agents/tests/test_live_llm.py`: `@pytest.mark.live_llm` opt-in smoke test per agent against the real provider (skipped by default, FR-024)
-- [ ] T054 [P] Finalize `backend/agents/src/exambrain_agents/__init__.py` public API re-exports (`ingest_course_file`, `generate_exam`, `evaluate_submission`, schemas, `FakeModel`) and verify quickstart.md import snippets work as written (SC-008)
-- [ ] T055 Verify ≥80% coverage on `agents/` (`uv run pytest --cov`) and quality gates: `uv run ruff check . && uv run black --check . && uv run mypy` across the workspace including the new member
-- [ ] T056 Audit logging/FR-022 compliance: grep-level check that no log call in `agents/` emits prompt/response/document/answer text; confirm `set_tracing_disabled(True)` fires at import; run full suite with network blocked to prove SC-007
-- [ ] T057 [P] Run the three Alembic migrations against local Postgres (`docker compose up`) per quickstart.md and execute the quickstart pipeline walkthrough end-to-end with FakeModel
+- [X] T053 [P] Write `backend/agents/tests/test_live_llm.py`: `@pytest.mark.live_llm` opt-in smoke test per agent against the real provider (skipped by default, FR-024)
+- [X] T054 [P] Finalize `backend/agents/src/exambrain_agents/__init__.py` public API re-exports (`ingest_course_file`, `generate_exam`, `evaluate_submission`, schemas, `FakeModel`) and verify quickstart.md import snippets work as written (SC-008)
+- [X] T055 Verify ≥80% coverage on `agents/` (`uv run pytest --cov`) and quality gates: `uv run ruff check . && uv run black --check . && uv run mypy` across the workspace including the new member
+- [X] T056 Audit logging/FR-022 compliance: grep-level check that no log call in `agents/` emits prompt/response/document/answer text; confirm `set_tracing_disabled(True)` fires at import; run full suite with network blocked to prove SC-007
+- [X] T057 [P] Run the three Alembic migrations against local Postgres (`docker compose up`) per quickstart.md and execute the quickstart pipeline walkthrough end-to-end with FakeModel
 
 ---
 

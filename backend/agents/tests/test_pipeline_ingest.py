@@ -126,9 +126,7 @@ async def ingest_paper(
         paper_id = repo.add_paper(env["course_id"], s3_key)
     if pdf is not None:
         env["s3"].objects[s3_key] = pdf
-    parsing_model = FakeModel(
-        outputs=[FinalOutput(parsing_output or parsed_paper())]
-    )
+    parsing_model = FakeModel(outputs=[FinalOutput(parsing_output or parsed_paper())])
     blueprint_model = (
         FakeModel(outputs=[FinalOutput(blueprint_output)])
         if blueprint_output is not None
@@ -367,9 +365,7 @@ async def test_ingest_resolves_course_instructor(
         ingestion_repo=ingestion_repo,
         course_repo=course_repo,
         parsing_model=FakeModel(outputs=[FinalOutput(parsed_paper())]),
-        blueprint_model=FakeModel(
-            outputs=[FinalOutput(blueprint_for([paper_id]))]
-        ),
+        blueprint_model=FakeModel(outputs=[FinalOutput(blueprint_for([paper_id]))]),
         alignment_model=FakeModel(outputs=[FinalOutput(bad_resolution)]),
     )
     assert result.status == "completed"
@@ -420,9 +416,7 @@ async def test_ingest_gray_zone_never_links_course(
         ingestion_repo=ingestion_repo,
         course_repo=course_repo,
         parsing_model=FakeModel(outputs=[FinalOutput(parsed_paper())]),
-        blueprint_model=FakeModel(
-            outputs=[FinalOutput(blueprint_for([paper_id]))]
-        ),
+        blueprint_model=FakeModel(outputs=[FinalOutput(blueprint_for([paper_id]))]),
         alignment_model=FakeModel(outputs=[FinalOutput(agent_resolution)]),
     )
     [resolution] = course_repo.resolutions

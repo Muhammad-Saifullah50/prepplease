@@ -22,9 +22,7 @@ TOPIC_WEIGHT_TOLERANCE = 0.01
 MARKS_TOLERANCE = 0.01
 
 
-def build_blueprint_agent(
-    *, alignment_tool: Tool | None = None
-) -> Agent[Any]:
+def build_blueprint_agent(*, alignment_tool: Tool | None = None) -> Agent[Any]:
     """Build the blueprint agent, optionally with alignment-as-tool."""
     return Agent(
         name="blueprint",
@@ -62,9 +60,7 @@ def validate_blueprint(
         failures.append("blueprint has no sections")
 
     section_total = sum(s.total_marks for s in structure.sections)
-    if not math.isclose(
-        structure.total_marks, section_total, abs_tol=MARKS_TOLERANCE
-    ):
+    if not math.isclose(structure.total_marks, section_total, abs_tol=MARKS_TOLERANCE):
         failures.append(
             f"total_marks {structure.total_marks} != sum of section totals "
             f"{section_total}"

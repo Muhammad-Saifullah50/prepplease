@@ -42,9 +42,7 @@ def blueprint_structure() -> BlueprintStructure:
         marks_distribution={"short_answer": 1.0},
         topic_weights=[TopicWeight(topic="thermo", weight=1.0)],
         phrasing_style=["terse"],
-        evidence=[
-            PaperEvidence(past_paper_id=uuid.uuid4(), observations=["obs"])
-        ],
+        evidence=[PaperEvidence(past_paper_id=uuid.uuid4(), observations=["obs"])],
         instructor_sightings=[],
         confidence=0.8,
     )
@@ -251,9 +249,7 @@ async def test_no_content_raises(
 
 async def test_turn_limit_no_write(env: dict[str, Any]) -> None:
     """Edge case: budget exceeded → typed error, nothing persisted."""
-    model = FakeModel(
-        outputs=[ToolCall("search_course_content", {"query": "t"})] * 30
-    )
+    model = FakeModel(outputs=[ToolCall("search_course_content", {"query": "t"})] * 30)
     with pytest.raises(AgentTurnLimitError):
         await run(env, model)
     assert env["exam_sim_repo"].generated_exams == {}

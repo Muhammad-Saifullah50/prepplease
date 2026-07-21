@@ -87,9 +87,7 @@ def test_generated_exams_round_trip() -> None:
         tables = {
             r[0]
             for r in conn.execute(
-                text(
-                    "SELECT tablename FROM pg_tables WHERE schemaname='public'"
-                )
+                text("SELECT tablename FROM pg_tables WHERE schemaname='public'")
             )
         }
     assert "generated_exams" not in tables

@@ -46,9 +46,7 @@ def extract_pdf_text(pdf_bytes: bytes) -> list[PageText]:
     try:
         doc = pdfium.PdfDocument(pdf_bytes)
     except Exception as exc:
-        raise ParsingFailedError(
-            f"unreadable PDF ({type(exc).__name__})"
-        ) from exc
+        raise ParsingFailedError(f"unreadable PDF ({type(exc).__name__})") from exc
     try:
         if len(doc) == 0:
             raise ParsingFailedError("PDF has zero pages")
@@ -58,8 +56,7 @@ def extract_pdf_text(pdf_bytes: bytes) -> list[PageText]:
                 text = doc[i].get_textpage().get_text_range()
             except Exception as exc:
                 raise ParsingFailedError(
-                    f"text extraction failed on page {i + 1} "
-                    f"({type(exc).__name__})"
+                    f"text extraction failed on page {i + 1} ({type(exc).__name__})"
                 ) from exc
             pages.append(PageText(page=i + 1, text=text, char_count=len(text)))
         return pages
@@ -73,9 +70,7 @@ def classify_pages(pages: list[PageText]) -> tuple[str, list[int]]:
     Returns ``(document_type, ocr_page_numbers)`` — ``pdf_scanned`` when
     most pages fall below the digital-text character threshold.
     """
-    ocr_pages = [
-        p.page for p in pages if p.char_count < DIGITAL_TEXT_CHAR_THRESHOLD
-    ]
+    ocr_pages = [p.page for p in pages if p.char_count < DIGITAL_TEXT_CHAR_THRESHOLD]
     kind = "pdf_scanned" if len(ocr_pages) > len(pages) / 2 else "pdf_digital"
     return kind, ocr_pages
 
@@ -86,26 +81,20 @@ def _ocr_pages_sync(pdf_bytes: bytes, page_numbers: list[int]) -> list[PageText]
     try:
         doc = pdfium.PdfDocument(pdf_bytes)
     except Exception as exc:
-        raise ParsingFailedError(
-            f"unreadable PDF ({type(exc).__name__})"
-        ) from exc
+        raise ParsingFailedError(f"unreadable PDF ({type(exc).__name__})") from exc
     try:
         results: list[PageText] = []
         for number in page_numbers:
             bitmap = doc[number - 1].render(scale=2.0)  # ~144 dpi
             image = bitmap.to_pil()
             text = pytesseract.image_to_string(image)
-            results.append(
-                PageText(page=number, text=text, char_count=len(text))
-            )
+            results.append(PageText(page=number, text=text, char_count=len(text)))
         return results
     finally:
         doc.close()
 
 
-async def ocr_pdf_pages(
-    pdf_bytes: bytes, page_numbers: list[int]
-) -> list[PageText]:
+async def ocr_pdf_pages(pdf_bytes: bytes, page_numbers: list[int]) -> list[PageText]:
     """Render pages with pypdfium2 and OCR with pytesseract (research R3).
 
     CPU-bound work runs in a thread so the event loop stays free
@@ -119,9 +108,7 @@ def extract_pptx_text(pptx_bytes: bytes) -> list[SlideText]:
     try:
         prs = Presentation(io.BytesIO(pptx_bytes))
     except Exception as exc:
-        raise ParsingFailedError(
-            f"unreadable PPTX ({type(exc).__name__})"
-        ) from exc
+        raise ParsingFailedError(f"unreadable PPTX ({type(exc).__name__})") from exc
     slides: list[SlideText] = []
     for i, slide in enumerate(prs.slides, start=1):
         title: str | None = None

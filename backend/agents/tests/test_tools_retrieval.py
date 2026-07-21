@@ -67,7 +67,5 @@ async def test_search_is_course_scoped(
     results = await search_course_content(
         mine, "shared text", embedder=fake_embedder, repo=ingestion_repo
     )
-    chunk_courses = {
-        ingestion_repo.chunks[r["chunk_id"]]["course_id"] for r in results
-    }
+    chunk_courses = {ingestion_repo.chunks[r["chunk_id"]]["course_id"] for r in results}
     assert chunk_courses == {mine}

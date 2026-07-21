@@ -132,9 +132,7 @@ async def ingest_course_file(
             failure_reason=exc.reason,
         )
 
-    needs_review = (
-        document.confidence < config.parsing_review_confidence_threshold()
-    )
+    needs_review = document.confidence < config.parsing_review_confidence_threshold()
 
     # Chunk + embed + persist atomically per source (FR-003, idempotent).
     chunks = chunk_document(document)
@@ -155,9 +153,7 @@ async def ingest_course_file(
             needs_review=needs_review,
         )
         # US2: resolve the course's recorded instructor name (FR-005..007).
-        await _align_course_instructor(
-            course_id, course_repo, alignment_model
-        )
+        await _align_course_instructor(course_id, course_repo, alignment_model)
         if not needs_review:
             blueprint_version = await _extract_blueprint(
                 course_id,
@@ -203,9 +199,7 @@ async def _parse(
             raise ParsingFailedError("PPTX has no slides")
         agent = build_parsing_agent(pptx_bytes=data)
         agent_input = parsing_input(kind, "pptx", slides=slides)
-    result: ParsedDocument = await run_agent(
-        agent, agent_input, model=parsing_model
-    )
+    result: ParsedDocument = await run_agent(agent, agent_input, model=parsing_model)
     return result
 
 
@@ -261,9 +255,7 @@ async def _extract_blueprint(
 
     # Persist instructor sightings with banding re-enforced (FR-007/008).
     for sighting in structure.instructor_sightings:
-        await _persist_resolution(
-            course_id, sighting, course_repo, link_course=False
-        )
+        await _persist_resolution(course_id, sighting, course_repo, link_course=False)
 
     _, version = await course_repo.write_blueprint_version(
         course_id,
@@ -290,13 +282,9 @@ async def _align_course_instructor(
         resolution: InstructorResolution = await run_agent(
             agent, alignment_input(raw_name), model=alignment_model
         )
-        await _persist_resolution(
-            course_id, resolution, course_repo, link_course=True
-        )
+        await _persist_resolution(course_id, resolution, course_repo, link_course=True)
     except Exception:
-        logger.warning(
-            "instructor_alignment_failed", course_id=str(course_id)
-        )
+        logger.warning("instructor_alignment_failed", course_id=str(course_id))
 
 
 async def _persist_resolution(
@@ -320,15 +308,11 @@ async def _persist_resolution(
         instructor_id = final.matched_instructor_id
     elif final.outcome == "created":
         normalized = normalize_name(final.raw_name)
-        existing = await course_repo.find_instructor_by_normalized_name(
-            normalized
-        )
+        existing = await course_repo.find_instructor_by_normalized_name(normalized)
         instructor_id = (
             existing["id"]
             if existing
-            else await course_repo.create_instructor(
-                normalized, final.raw_name.strip()
-            )
+            else await course_repo.create_instructor(normalized, final.raw_name.strip())
         )
 
     await course_repo.save_resolution(

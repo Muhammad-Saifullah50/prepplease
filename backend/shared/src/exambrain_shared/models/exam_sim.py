@@ -28,13 +28,16 @@ class ExamSession(TimestampMixin, Base):
     )
 
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False  # identifier-only ref (course_core DB)
+        UUID(as_uuid=True),
+        nullable=False,  # identifier-only ref (course_core DB)
     )
     course_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False  # identifier-only ref
+        UUID(as_uuid=True),
+        nullable=False,  # identifier-only ref
     )
     blueprint_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), nullable=True  # identifier-only ref
+        UUID(as_uuid=True),
+        nullable=True,  # identifier-only ref
     )
     exam_content: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
     status: Mapped[str] = mapped_column(nullable=False, server_default=text("'active'"))
@@ -64,10 +67,12 @@ class GeneratedExamRow(TimestampMixin, Base):
     )
 
     course_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False  # identifier-only ref (course_core DB)
+        UUID(as_uuid=True),
+        nullable=False,  # identifier-only ref (course_core DB)
     )
     blueprint_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False  # identifier-only ref
+        UUID(as_uuid=True),
+        nullable=False,  # identifier-only ref
     )
     blueprint_version: Mapped[int] = mapped_column(nullable=False)
     content: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)

@@ -67,9 +67,7 @@ async def generate_exam(
         raise ContentRequiredError(course_id)
 
     blueprint = BlueprintStructure.model_validate(blueprint_row["structure"])
-    agent = build_generator_agent(
-        course_id, embedder=embedder, repo=ingestion_repo
-    )
+    agent = build_generator_agent(course_id, embedder=embedder, repo=ingestion_repo)
 
     async def validate(exam: GeneratedExam) -> list[str]:
         return await _validate_exam(exam, blueprint, course_id, ingestion_repo)
@@ -92,12 +90,8 @@ async def generate_exam(
 
     reasons = list(failures)
     if exam.ungrounded_topics:
-        reasons.extend(
-            f"ungrounded topic: {topic}" for topic in exam.ungrounded_topics
-        )
-    status: Literal["ready", "needs_review"] = (
-        "needs_review" if reasons else "ready"
-    )
+        reasons.extend(f"ungrounded topic: {topic}" for topic in exam.ungrounded_topics)
+    status: Literal["ready", "needs_review"] = "needs_review" if reasons else "ready"
 
     exam_id = await exam_sim_repo.insert_generated_exam(
         {
@@ -133,8 +127,7 @@ async def _validate_exam(
     # Section layout: names, types, counts, marks.
     if len(exam.sections) != len(blueprint.sections):
         failures.append(
-            f"section count {len(exam.sections)} != blueprint "
-            f"{len(blueprint.sections)}"
+            f"section count {len(exam.sections)} != blueprint {len(blueprint.sections)}"
         )
     for exam_section, bp_section in zip(
         exam.sections, blueprint.sections, strict=False
@@ -161,20 +154,16 @@ async def _validate_exam(
             )
 
     # Total marks: internal sum and blueprint total.
-    question_marks = sum(
-        q.marks for s in exam.sections for q in s.questions
-    )
+    question_marks = sum(q.marks for s in exam.sections for q in s.questions)
     if not math.isclose(exam.total_marks, question_marks, abs_tol=MARKS_TOLERANCE):
         failures.append(
-            f"total_marks {exam.total_marks} != sum of question marks "
-            f"{question_marks}"
+            f"total_marks {exam.total_marks} != sum of question marks {question_marks}"
         )
     if not math.isclose(
         exam.total_marks, blueprint.total_marks, abs_tol=MARKS_TOLERANCE
     ):
         failures.append(
-            f"total_marks {exam.total_marks} != blueprint total "
-            f"{blueprint.total_marks}"
+            f"total_marks {exam.total_marks} != blueprint total {blueprint.total_marks}"
         )
 
     # Citations: every question cites ≥1 chunk that exists for the course.
@@ -185,9 +174,7 @@ async def _validate_exam(
         if not question.source_chunk_ids:
             failures.append(f"question {question.number} cites no chunks")
         elif not any(c in existing for c in question.source_chunk_ids):
-            failures.append(
-                f"question {question.number} cites unknown chunk ids"
-            )
+            failures.append(f"question {question.number} cites unknown chunk ids")
 
     # Rubric covers every question exactly (FR-013).
     rubric_numbers = [e.question_number for e in exam.rubric]
@@ -198,7 +185,6 @@ async def _validate_exam(
     for entry in exam.rubric:
         if not entry.expected_points:
             failures.append(
-                f"rubric for question {entry.question_number} has no "
-                "expected points"
+                f"rubric for question {entry.question_number} has no expected points"
             )
     return failures

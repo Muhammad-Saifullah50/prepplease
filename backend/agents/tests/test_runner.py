@@ -119,9 +119,7 @@ async def test_log_records_never_contain_content(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     """FR-022: run logs carry metadata only — never document/prompt text."""
-    model = FakeModel(
-        outputs=[FinalOutput(Answer(value=1, note=SECRET_CONTENT))]
-    )
+    model = FakeModel(outputs=[FinalOutput(Answer(value=1, note=SECRET_CONTENT))])
     with caplog.at_level(logging.DEBUG):
         await run_agent(make_agent(model), f"summarize: {SECRET_CONTENT}")
     for record in caplog.records:

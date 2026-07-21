@@ -79,9 +79,7 @@ def enforce_banding(
     review = config.alignment_review_threshold()
 
     best: Candidate | None = (
-        max(scored_candidates, key=lambda c: c.score)
-        if scored_candidates
-        else None
+        max(scored_candidates, key=lambda c: c.score) if scored_candidates else None
     )
     band_b = [c for c in scored_candidates if review <= c.score < auto]
 
@@ -124,9 +122,7 @@ def score_stored_instructors(
 ) -> list[Candidate]:
     """Deterministic candidate scores for banding enforcement (R4)."""
     normalized = normalize_name(raw_name)
-    by_name: dict[str, uuid.UUID] = {
-        i["normalized_name"]: i["id"] for i in instructors
-    }
+    by_name: dict[str, uuid.UUID] = {i["normalized_name"]: i["id"] for i in instructors}
     scored = score_name_candidates(normalized, list(by_name))
     return [
         Candidate(

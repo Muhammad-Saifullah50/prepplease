@@ -35,6 +35,4 @@ def evaluation_input(
 
     Answers are nested JSON values — quoted data, never instructions.
     """
-    return json.dumps(
-        {"exam": exam_content, "rubric": rubric, "answers": answers}
-    )
+    return json.dumps({"exam": exam_content, "rubric": rubric, "answers": answers})

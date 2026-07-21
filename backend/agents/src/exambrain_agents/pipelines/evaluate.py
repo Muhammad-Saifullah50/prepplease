@@ -65,8 +65,7 @@ async def evaluate_submission(
     exam = await exam_sim_repo.get_generated_exam(generated_exam_id)
 
     normalized_answers = [
-        a.model_dump() if isinstance(a, SubmittedAnswer) else dict(a)
-        for a in answers
+        a.model_dump() if isinstance(a, SubmittedAnswer) else dict(a) for a in answers
     ]
     expected = _question_allocations(exam["content"])
 
@@ -152,7 +151,5 @@ def _validate_arithmetic(
         )
     max_total = sum(s.max_marks for s in output.question_scores)
     if not math.isclose(output.max_score, max_total, abs_tol=SCORE_TOLERANCE):
-        failures.append(
-            f"max_score {output.max_score} != sum of max_marks {max_total}"
-        )
+        failures.append(f"max_score {output.max_score} != sum of max_marks {max_total}")
     return failures

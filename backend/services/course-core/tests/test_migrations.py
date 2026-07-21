@@ -102,9 +102,7 @@ def test_instructors_round_trip() -> None:
     # FK SET NULL: deleting the instructor clears the course link.
     with engine.begin() as conn:
         conn.execute(text("DELETE FROM instructors"))
-        remaining = conn.execute(
-            text("SELECT instructor_id FROM courses")
-        ).scalar_one()
+        remaining = conn.execute(text("SELECT instructor_id FROM courses")).scalar_one()
         assert remaining is None
 
     _alembic("downgrade", "-1")

@@ -29,9 +29,7 @@ Rules:
 """
 
 
-def alignment_prompt(
-    auto_match_threshold: float, review_threshold: float
-) -> str:
+def alignment_prompt(auto_match_threshold: float, review_threshold: float) -> str:
     """Prompt with the configured similarity bands substituted (FR-007)."""
     return ALIGNMENT_PROMPT_V1.format(
         auto_match_threshold=auto_match_threshold,

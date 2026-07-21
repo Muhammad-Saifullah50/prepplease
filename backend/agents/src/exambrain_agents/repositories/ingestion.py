@@ -100,9 +100,7 @@ class IngestionRepository:
                 )
         return len(chunks)
 
-    async def eligible_papers(
-        self, course_id: uuid.UUID
-    ) -> list[dict[str, Any]]:
+    async def eligible_papers(self, course_id: uuid.UUID) -> list[dict[str, Any]]:
         """Completed, non-needs-review papers for blueprinting (FR-009)."""
         async with self._session_factory() as session:
             rows = await session.scalars(
@@ -114,9 +112,7 @@ class IngestionRepository:
             )
             return [_paper_dict(p) for p in rows]
 
-    async def chunks_for_paper(
-        self, paper_id: uuid.UUID
-    ) -> list[dict[str, Any]]:
+    async def chunks_for_paper(self, paper_id: uuid.UUID) -> list[dict[str, Any]]:
         async with self._session_factory() as session:
             rows = await session.scalars(
                 select(DocumentChunk)
