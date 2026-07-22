@@ -26,8 +26,8 @@
 
 | # | Feature | Description |
 |---|---------|-------------|
-| 13 | **Course Core Service** | FastAPI CRUD for courses, dashboard telemetry, user profiles, performance history |
-| 14 | **Ingestion Pipeline Service** | File upload → S3 streaming → chunking → semantic tokenization → DB storage |
+| 13 | [X] **Course Core Service** | FastAPI CRUD for courses, dashboard telemetry, user profiles, performance history |
+| 14 | [X] **Ingestion Pipeline Service** | File upload → S3 streaming → chunking → semantic tokenization → DB storage |
 | 15 | **Exam Simulation Service** | Real-time session mgmt, countdown timer, auto-save buffer, focus-violation lockout |
 
 ## Phase 4: Containerization
@@ -41,7 +41,7 @@
 
 | # | Feature | Description |
 |---|---------|-------------|
-| 18 | **UI Scaffold** | Fast enough frontend (React/Vite, or HTMX+Jinja) with routing, auth pages |
+| 18 | **UI Scaffold** | Fast enough frontend (Nextjs 16 with Partial Pre Rendering) with routing, auth pages |
 | 19 | **Dashboard Views** | Course list, upload panel, blueprint viewer, exam launcher, result history |
 | 20 | **Exam Player** | Full-screen timed exam UI with auto-save, answer navigation, submit flow |
 | 21 | **Focus Tracking** | Page Visibility API + `blur` events → heartbeat → session lockout on violation |
@@ -61,3 +61,4 @@
 |---|---------|-------------|
 | 26 | **MinIO Self-Hosted S3** | S3-compatible object storage in-cluster, zero-code migration from AWS |
 | 27 | **Local LLM Fallback** | LiteLLM config pointing to Ollama/OpenRouter instead of Bedrock |
+

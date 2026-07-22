@@ -40,6 +40,31 @@ class IngestionRepository:
                 raise ObjectNotFoundError(str(paper_id))
             return _paper_dict(paper)
 
+    async def list_papers_for_course(
+        self, course_id: uuid.UUID
+    ) -> list[dict[str, Any]]:
+        async with self._session_factory() as session:
+            rows = await session.scalars(
+                select(PastPaper)
+                .where(PastPaper.course_id == course_id)
+                .order_by(PastPaper.created_at.desc())
+            )
+            return [
+                {
+                    "id": p.id,
+                    "status": p.processing_status,
+                    "file_type": p.file_type,
+                    "file_name": p.file_name,
+                    "created_at": p.created_at.isoformat() if p.created_at else None,
+                    "processing_completed_at": (
+                        p.processing_completed_at.isoformat()
+                        if p.processing_completed_at
+                        else None
+                    ),
+                }
+                for p in rows
+            ]
+
     async def mark_processing(self, paper_id: uuid.UUID) -> None:
         async with self._session_factory() as session, session.begin():
             paper = await session.get(PastPaper, paper_id)

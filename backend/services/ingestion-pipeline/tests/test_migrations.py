@@ -35,8 +35,10 @@ def _alembic(*args: str) -> None:
 
 @pytest.fixture(autouse=True)
 def clean_slate() -> None:
+    _alembic("downgrade", "base")
     yield
     _alembic("downgrade", "base")
+    _alembic("upgrade", "head")
 
 
 def test_parsing_state_columns_round_trip() -> None:
@@ -86,7 +88,7 @@ def test_parsing_state_columns_round_trip() -> None:
         assert idx, "needs_review index missing on past_papers"
 
     # Downgrade to 001 removes the columns but keeps the table.
-    _alembic("downgrade", "-1")
+    _alembic("downgrade", "001_ingestion")
     with engine.connect() as conn:
         cols = {
             r[0]

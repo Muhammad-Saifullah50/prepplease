@@ -1,11 +1,13 @@
 """ORM models owned by the course-core service (``course_core`` database)."""
 
 import uuid
+from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import (
     CheckConstraint,
+    DateTime,
     ForeignKey,
     Index,
     Numeric,
@@ -26,8 +28,15 @@ class User(TimestampMixin, Base):
     __tablename__ = "users"
     __table_args__ = {"info": {"service": SERVICE}}
 
+    clerk_id: Mapped[str | None] = mapped_column(nullable=True)
     email: Mapped[str] = mapped_column(unique=True, nullable=False)
     display_name: Mapped[str] = mapped_column(nullable=False)
+    is_active: Mapped[bool] = mapped_column(
+        nullable=False, server_default=text("true")
+    )
+    preferences: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, server_default=text("'{}'::jsonb")
+    )
 
 
 class Instructor(TimestampMixin, Base):
@@ -62,6 +71,12 @@ class Course(TimestampMixin, Base):
         UUID(as_uuid=True),
         ForeignKey("instructors.id", ondelete="SET NULL"),
         nullable=True,  # at most one resolved identity per course (FR-006)
+    )
+    archived_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    paper_count: Mapped[int] = mapped_column(
+        nullable=False, server_default=text("0")
     )
 
 

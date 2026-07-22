@@ -39,6 +39,12 @@ class Settings(BaseSettings):
     llm_max_retries: int = 3
     llm_retry_deadline_seconds: int = 60
 
+    # Clerk authentication (optional — stubs error at call time)
+    clerk_secret_key: str | None = None
+    clerk_jwt_key: str | None = None
+    clerk_webhook_signing_secret: str | None = None
+    clerk_authorized_parties: str | None = None
+
     # Rate limiting defaults (optional)
     rate_limit_default_threshold: int | None = None
     rate_limit_default_window_seconds: int | None = None
@@ -59,7 +65,7 @@ class Settings(BaseSettings):
     alignment_review_threshold: float = 0.70
     parsing_review_confidence_threshold: float = 0.60
 
-    _SECRET_FIELDS = frozenset({"aws_secret_access_key", "llm_api_key"})
+    _SECRET_FIELDS = frozenset({"aws_secret_access_key", "llm_api_key", "clerk_secret_key", "clerk_webhook_signing_secret"})
 
     def __repr_args__(self) -> "Iterable[tuple[str | None, object]]":
         """Redact secret values in repr/str so they never reach logs."""

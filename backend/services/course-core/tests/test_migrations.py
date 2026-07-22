@@ -35,8 +35,10 @@ def _alembic(*args: str) -> None:
 
 @pytest.fixture(autouse=True)
 def clean_slate() -> None:
+    _alembic("downgrade", "base")
     yield
     _alembic("downgrade", "base")
+    _alembic("upgrade", "head")
 
 
 def test_instructors_round_trip() -> None:
@@ -105,7 +107,7 @@ def test_instructors_round_trip() -> None:
         remaining = conn.execute(text("SELECT instructor_id FROM courses")).scalar_one()
         assert remaining is None
 
-    _alembic("downgrade", "-1")
+    _alembic("downgrade", "001_course_core")
     with engine.connect() as conn:
         tables = {
             r[0]

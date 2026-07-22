@@ -1,6 +1,7 @@
 """ORM models owned by the ingestion-pipeline service (``ingestion`` database)."""
 
 import uuid
+from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
@@ -36,6 +37,9 @@ class PastPaper(TimestampMixin, Base):
         nullable=False,  # identifier-only ref (course_core DB)
     )
     s3_key: Mapped[str] = mapped_column(nullable=False)
+    content_hash: Mapped[str | None] = mapped_column(nullable=True)
+    file_name: Mapped[str | None] = mapped_column(nullable=True)
+    file_type: Mapped[str | None] = mapped_column(nullable=True)
     academic_term: Mapped[str | None] = mapped_column(nullable=True)
     year: Mapped[int | None] = mapped_column(nullable=True)
     processing_status: Mapped[str] = mapped_column(
@@ -48,6 +52,9 @@ class PastPaper(TimestampMixin, Base):
     )
     needs_review: Mapped[bool] = mapped_column(
         nullable=False, server_default=text("false")
+    )
+    processing_completed_at: Mapped[datetime | None] = mapped_column(
+        nullable=True
     )
 
 
