@@ -51,6 +51,7 @@ class BlueprintStructure(BaseModel):
     marks_distribution: dict[str, float]  # question_type → share
     topic_weights: list[TopicWeight]
     phrasing_style: list[str]  # style characteristics
+    time_limit_minutes: int | None = None
     evidence: list[PaperEvidence]  # one per source paper
     instructor_sightings: list[InstructorResolution] = Field(default_factory=list)
     confidence: float = Field(ge=0.0, le=1.0)  # lower on thin/contradictory evidence

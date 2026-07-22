@@ -79,3 +79,34 @@ async def test_parsing_agent_tool_loop_re_extraction() -> None:
     )
     assert isinstance(result, ParsedDocument)
     assert model.turns == 2
+
+
+async def test_parsing_time_limit_extraction() -> None:
+    parsed = make_output(0.95)
+    parsed = parsed.model_copy(update={"time_limit_minutes": 180})
+    model = FakeModel(outputs=[FinalOutput(parsed)])
+    agent = build_parsing_agent()
+    result = await run_agent(
+        agent, parsing_input("past_paper", "pdf_digital", PAGES), model=model
+    )
+    assert isinstance(result, ParsedDocument)
+    assert result.time_limit_minutes == 180
+
+
+async def test_parsing_time_limit_null_when_not_stated() -> None:
+    parsed = make_output(0.95)
+    parsed = parsed.model_copy(update={"time_limit_minutes": None})
+    model = FakeModel(outputs=[FinalOutput(parsed)])
+    result = await run_agent(
+        build_parsing_agent(),
+        parsing_input("past_paper", "pdf_digital", PAGES),
+        model=model,
+    )
+    assert result.time_limit_minutes is None
+
+
+def test_parsing_prompt_includes_time_limit_instruction() -> None:
+    from exambrain_agents.parsing.prompt import PARSING_PROMPT_V1
+
+    text = PARSING_PROMPT_V1.lower()
+    assert "time_limit_minutes" in text or "time limit" in text

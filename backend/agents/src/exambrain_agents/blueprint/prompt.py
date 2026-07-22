@@ -24,5 +24,8 @@ Rules:
   `resolve_instructor_sighting` tool (when available) and include the
   returned resolution in `instructor_sightings`. Never resolve or merge
   names yourself.
+- Merge time limits across papers: use the LONGEST stated `time_limit_minutes`
+   among all source papers. If ALL papers have null, set `time_limit_minutes` to
+   null. If only some have a value, use the longest known value.
 - Do not invent structure absent from the papers.
 """

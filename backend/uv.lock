@@ -742,6 +742,11 @@ dependencies = [
     { name = "alembic" },
     { name = "exambrain-shared" },
     { name = "fastapi" },
+    { name = "httpx" },
+    { name = "pydantic-settings" },
+    { name = "redis" },
+    { name = "structlog" },
+    { name = "tenacity" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -750,6 +755,11 @@ requires-dist = [
     { name = "alembic", specifier = ">=1.14" },
     { name = "exambrain-shared", editable = "shared" },
     { name = "fastapi", specifier = ">=0.115" },
+    { name = "httpx", specifier = ">=0.27" },
+    { name = "pydantic-settings", specifier = ">=2" },
+    { name = "redis", specifier = ">=5" },
+    { name = "structlog", specifier = ">=24" },
+    { name = "tenacity", specifier = ">=8" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.32" },
 ]
 

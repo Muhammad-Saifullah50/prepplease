@@ -102,6 +102,7 @@ async def generate_exam(
             "rubric": [e.model_dump(mode="json") for e in exam.rubric],
             "status": status,
             "needs_review_reasons": reasons,
+            "time_limit_minutes": exam.time_limit_minutes,
         }
     )
     return GeneratedExamRecord(

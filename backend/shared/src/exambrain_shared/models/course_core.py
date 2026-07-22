@@ -133,6 +133,7 @@ class ExamBlueprint(TimestampMixin, Base):
     )
     version: Mapped[int] = mapped_column(nullable=False, server_default=text("1"))
     structure: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    time_limit_minutes: Mapped[int | None] = mapped_column(nullable=True)
     source_past_paper_ids: Mapped[list[Any]] = mapped_column(
         JSONB, nullable=False, server_default=text("'[]'::jsonb")
     )

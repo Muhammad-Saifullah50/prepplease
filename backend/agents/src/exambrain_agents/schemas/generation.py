@@ -46,5 +46,6 @@ class GeneratedExam(BaseModel):
 
     sections: list[ExamSection]
     total_marks: float
+    time_limit_minutes: int | None = None
     rubric: list[RubricEntry]  # exactly one per question
     ungrounded_topics: list[str] = Field(default_factory=list)

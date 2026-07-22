@@ -87,6 +87,57 @@ class SessionStore(_LazyRedisBase):
         await client.delete(self._key(session_id))
 
 
+class AttemptStateCache(_LazyRedisBase):
+    """Redis read/write cache for live attempt polling (005-exam-simulation).
+
+    Write-through: on answer save, update PG + refresh cache.
+    Read-through: on poll, read cache; on miss, read PG and repopulate.
+    Invalidate: on finish/lockout/expiry, delete cache key.
+    """
+
+    @staticmethod
+    def _key(attempt_id: str) -> str:
+        return f"attempt:{attempt_id}:state"
+
+    async def set_state(
+        self,
+        attempt_id: str,
+        *,
+        status: str,
+        remaining_seconds: int,
+        focus_violations: int,
+        answers: dict[str, str],
+        deadline: str,
+        ttl_seconds: int,
+    ) -> None:
+        client = self._get_client()
+        await client.hset(
+            self._key(attempt_id),
+            mapping={
+                "status": status,
+                "remaining_seconds": str(remaining_seconds),
+                "focus_violations": str(focus_violations),
+                "answers": json.dumps(answers),
+                "deadline": deadline,
+            },
+        )
+        await client.expire(self._key(attempt_id), ttl_seconds)
+
+    async def get_state(
+        self, attempt_id: str
+    ) -> dict[str, str] | None:
+        client = self._get_client()
+        raw = await client.hgetall(self._key(attempt_id))
+        if not raw:
+            return None
+        decoded: dict[str, str] = {k: v for k, v in raw.items()}
+        return decoded
+
+    async def invalidate(self, attempt_id: str) -> None:
+        client = self._get_client()
+        await client.delete(self._key(attempt_id))
+
+
 @dataclass(frozen=True)
 class RateLimitResult:
     """Outcome of one rate-limit check."""

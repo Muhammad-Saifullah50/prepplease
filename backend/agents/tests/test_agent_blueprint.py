@@ -152,3 +152,34 @@ async def test_sighting_routed_through_alignment_tool() -> None:
         agent, blueprint_input([(PAPER_A, "paper text")]), model=model
     )
     assert result.instructor_sightings == [sighting]
+
+
+async def test_blueprint_duration_merging_longest_wins() -> None:
+    structure = make_structure(paper_ids=[PAPER_A, PAPER_B])
+    structure = structure.model_copy(update={"time_limit_minutes": 180})
+    model = FakeModel(outputs=[FinalOutput(structure)])
+    result = await run_agent(
+        build_blueprint_agent(),
+        blueprint_input([(PAPER_A, "3 hour paper"), (PAPER_B, "2 hour paper")]),
+        model=model,
+    )
+    assert result.time_limit_minutes == 180
+
+
+async def test_blueprint_duration_all_null() -> None:
+    structure = make_structure(paper_ids=[PAPER_A])
+    structure = structure.model_copy(update={"time_limit_minutes": None})
+    model = FakeModel(outputs=[FinalOutput(structure)])
+    result = await run_agent(
+        build_blueprint_agent(),
+        blueprint_input([(PAPER_A, "paper with no time stated")]),
+        model=model,
+    )
+    assert result.time_limit_minutes is None
+
+
+def test_blueprint_prompt_includes_duration_merge() -> None:
+    from exambrain_agents.blueprint.prompt import BLUEPRINT_PROMPT_V1
+
+    text = BLUEPRINT_PROMPT_V1.lower()
+    assert "time_limit" in text or "duration" in text

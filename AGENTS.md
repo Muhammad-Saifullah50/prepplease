@@ -289,6 +289,8 @@ See `.specify/memory/constitution.md` for code quality, testing, performance, se
 - Python 3.12+ (async throughout) + `openai-agents[litellm]` ≥0.2 (agent framework, LiteLLM model path → Bedrock), `exambrain-shared` (settings, LLMClient, S3Adapter, db, errors, logging), `pypdfium2` (PDF text + rasterization), `pytesseract` (OCR; tesseract binary in dev/CI image), `python-pptx`, `rapidfuzz`, `pgvector`/SQLAlchemy (existing) (003-phase2-agents)
 - PostgreSQL + pgvector via existing per-service DBs — course-core (`instructors`, `instructor_resolutions`, `exam_blueprints`, `results`), ingestion (`past_papers`, `document_chunks` 1024-dim HNSW), exam-sim (`generated_exams`); S3 for source files; identifier-only cross-DB references (003-phase2-agents)
 - Python 3.12 (pinned via `.python-version`) (004-foundation-services)
+- Python 3.12+ (pinned `.python-version`) + FastAPI, SQLAlchemy 2 (async), asyncpg, pydantic v2, LiteLLM, redis-py (async), tenacity, structlog, pydantic-settings (005-exam-simulation)
+- PostgreSQL 17 + pgvector (exam_sim DB for attempts; course_core DB for results/blueprints; ingestion DB for past_papers); Redis 7 (live attempt state cache) (005-exam-simulation)
 
 ## Recent Changes
 - 001-project-scaffold: Added Python 3.12 (pinned via `.python-version`, `python:3.12-slim` base images) + FastAPI, uvicorn, pydantic v2 + pydantic-settings, SQLAlchemy 2 (async) + asyncpg, alembic, redis-py (async), litellm (stub wiring only), boto3/aioboto3 (stub wiring only), prometheus-client, structlog (JSON logging)

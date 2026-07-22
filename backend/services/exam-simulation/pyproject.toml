@@ -7,6 +7,11 @@ dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.32",
     "alembic>=1.14",
+    "redis>=5",
+    "httpx>=0.27",
+    "tenacity>=8",
+    "structlog>=24",
+    "pydantic-settings>=2",
     "exambrain-shared",
 ]
 

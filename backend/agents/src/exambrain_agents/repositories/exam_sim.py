@@ -31,6 +31,7 @@ class ExamSimRepository:
                 rubric=record["rubric"],
                 status=record["status"],
                 needs_review_reasons=record["needs_review_reasons"],
+                time_limit_minutes=record.get("time_limit_minutes"),
             )
             session.add(row)
             await session.flush()
@@ -50,6 +51,7 @@ class ExamSimRepository:
                 "rubric": row.rubric,
                 "status": row.status,
                 "needs_review_reasons": row.needs_review_reasons,
+                "time_limit_minutes": row.time_limit_minutes,
             }
 
     async def get_session(self, session_id: uuid.UUID) -> dict[str, Any]:

@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import CheckConstraint, DateTime, Index, text
+from sqlalchemy import CheckConstraint, DateTime, Index, Integer, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -39,16 +39,28 @@ class ExamSession(TimestampMixin, Base):
         UUID(as_uuid=True),
         nullable=True,  # identifier-only ref
     )
+    generated_exam_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        nullable=False,  # identifier-only ref
+    )
     exam_content: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
     status: Mapped[str] = mapped_column(nullable=False, server_default=text("'active'"))
     started_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
     )
+    deadline: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     ended_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+    finished_by: Mapped[str | None] = mapped_column(Text, nullable=True)
+    time_limit_minutes: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    answers: Mapped[dict[str, str]] = mapped_column(
+        JSONB, nullable=False, server_default=text("'{}'::jsonb"), default={}
+    )
     focus_violations: Mapped[int] = mapped_column(
-        nullable=False, server_default=text("0")
+        nullable=False, server_default=text("0"), default=0
     )
 
 
@@ -81,3 +93,4 @@ class GeneratedExamRow(TimestampMixin, Base):
     needs_review_reasons: Mapped[list[Any]] = mapped_column(
         JSONB, nullable=False, server_default=text("'[]'::jsonb")
     )
+    time_limit_minutes: Mapped[int | None] = mapped_column(Integer, nullable=True)

@@ -50,6 +50,7 @@ class PastPaper(TimestampMixin, Base):
         Numeric(4, 3),
         nullable=True,  # set on completed parse (FR-002)
     )
+    time_limit_minutes: Mapped[int | None] = mapped_column(nullable=True)
     needs_review: Mapped[bool] = mapped_column(
         nullable=False, server_default=text("false")
     )

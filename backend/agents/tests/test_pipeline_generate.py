@@ -253,3 +253,10 @@ async def test_turn_limit_no_write(env: dict[str, Any]) -> None:
     with pytest.raises(AgentTurnLimitError):
         await run(env, model)
     assert env["exam_sim_repo"].generated_exams == {}
+
+
+def test_generator_prompt_includes_time_limit_pass_through() -> None:
+    from exambrain_agents.generator.prompt import GENERATOR_PROMPT_V1
+
+    text = GENERATOR_PROMPT_V1.lower()
+    assert "time_limit" in text

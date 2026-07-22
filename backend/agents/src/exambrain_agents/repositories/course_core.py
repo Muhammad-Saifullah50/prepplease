@@ -103,6 +103,7 @@ class CourseCoreRepository:
                 version=version,
                 structure=structure,
                 source_past_paper_ids=[str(p) for p in source_past_paper_ids],
+                time_limit_minutes=structure.get("time_limit_minutes"),
             )
             session.add(blueprint)
             await session.flush()
@@ -285,6 +286,7 @@ class CourseCoreRepository:
                 "version": blueprint.version,
                 "structure": blueprint.structure,
                 "source_past_paper_ids": blueprint.source_past_paper_ids,
+                "time_limit_minutes": blueprint.time_limit_minutes,
             }
 
     # -- instructors / resolutions (US2, FR-005..FR-007) -------------------

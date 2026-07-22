@@ -20,5 +20,7 @@ Rules:
 - If a blueprint topic has no usable course content, do NOT fabricate a
   question requiring absent material; cover the topics that have content
   and list the uncoverable ones in `ungrounded_topics`.
+- Pass through the blueprint's `time_limit_minutes` unchanged into the
+   generated exam output. If null, omit (the service will use its default).
 - Questions must be original — never copy a past-paper question verbatim.
 """

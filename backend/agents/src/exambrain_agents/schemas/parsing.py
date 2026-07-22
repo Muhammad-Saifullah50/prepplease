@@ -49,6 +49,7 @@ class ParsedDocument(BaseModel):
     kind: Literal["past_paper", "course_material"]
     document_type: Literal["pdf_digital", "pdf_scanned", "pptx"]
     instructor_name_seen: str | None = None  # name printed on the paper
+    time_limit_minutes: int | None = None
     sections: list[ParsedSection]  # ≥1 for a completed parse
     total_marks: float | None = None
     confidence: float = Field(ge=0.0, le=1.0)

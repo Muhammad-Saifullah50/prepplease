@@ -78,6 +78,7 @@ class IngestionRepository:
         *,
         parsing_confidence: float,
         needs_review: bool,
+        time_limit_minutes: int | None = None,
     ) -> None:
         async with self._session_factory() as session, session.begin():
             paper = await session.get(PastPaper, paper_id)
@@ -87,6 +88,7 @@ class IngestionRepository:
             paper.failure_reason = None
             paper.parsing_confidence = parsing_confidence  # type: ignore[assignment]
             paper.needs_review = needs_review
+            paper.time_limit_minutes = time_limit_minutes
 
     async def mark_failed(self, paper_id: uuid.UUID, reason: str) -> None:
         async with self._session_factory() as session, session.begin():
@@ -214,6 +216,7 @@ def _paper_dict(paper: PastPaper) -> dict[str, Any]:
             else None
         ),
         "needs_review": paper.needs_review,
+        "time_limit_minutes": paper.time_limit_minutes,
     }
 
 

@@ -52,6 +52,11 @@ class Settings(BaseSettings):
     # S3 endpoint override (future MinIO swap)
     s3_endpoint_url: str | None = None
 
+    # Exam simulation settings (Phase 3 — 005-exam-simulation)
+    exam_attempt_default_timeout_minutes: int = 120
+    exam_focus_violation_limit: int = 3
+    exam_deadline_poll_interval_seconds: int = 10
+
     # Per-agent model overrides (Phase 2 agents; default to llm_model — FR-021)
     agent_parsing_model: str | None = None
     agent_alignment_model: str | None = None

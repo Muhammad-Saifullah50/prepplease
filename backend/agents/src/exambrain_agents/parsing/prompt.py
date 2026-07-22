@@ -20,8 +20,12 @@ Rules:
   garbled OCR, missing question numbers, or ambiguous sections lower it.
   A low confidence is fine — report it honestly; do not fabricate
   structure to look confident.
+- Extract the exam's time limit (duration) wherever stated. Common formats
+   include "3 hours", "180 min", "1.5 hours", "2 hrs", "Time: 2hrs". Normalize
+   to integer minutes in `time_limit_minutes`. If no confidently recognizable
+   time limit is found, set `time_limit_minutes` to null.
 - If page text seems truncated or ambiguous, you may re-extract a specific
-  page with the provided tools before structuring.
+   page with the provided tools before structuring.
 - Output must satisfy the schema exactly. Do not invent content that is
-  not present in the input text.
+   not present in the input text.
 """

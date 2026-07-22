@@ -151,6 +151,7 @@ async def ingest_course_file(
             past_paper_id,
             parsing_confidence=document.confidence,
             needs_review=needs_review,
+            time_limit_minutes=document.time_limit_minutes,
         )
         # US2: resolve the course's recorded instructor name (FR-005..007).
         await _align_course_instructor(course_id, course_repo, alignment_model)
@@ -234,6 +235,13 @@ async def _extract_blueprint(
         body = "\n".join(
             f"[{json.dumps(c['hierarchy'])}] {c['content']}" for c in chunks
         )
+        paper_time = paper.get("time_limit_minutes")
+        time_note = (
+            f"\n[time_limit_minutes: {paper_time}]"
+            if paper_time is not None
+            else "\n[time_limit_minutes: not stated]"
+        )
+        body += time_note
         paper_texts.append((paper["id"], body))
 
     agent = build_blueprint_agent(
